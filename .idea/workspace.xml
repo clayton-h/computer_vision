@@ -4,7 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7e644d2d-6863-4760-93e0-dd04bde72397" name="Changes" comment="" />
+    <list default="true" id="7e644d2d-6863-4760-93e0-dd04bde72397" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/homework/hw1/hw1_pic1.jpg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/homework/hw1/hw1_pic2.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/homework/hw1/hw1.py" beforeDir="false" afterPath="$PROJECT_DIR$/homework/hw1/hw1.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/homework/hw1/wrapper.py" beforeDir="false" afterPath="$PROJECT_DIR$/homework/hw1/wrapper.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -23,17 +30,24 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Python.hw1.executor": "Run",
+    "Python.wrapper.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "dart.analysis.tool.window.visible": "false",
-    "last_opened_file_path": "C:/Users/ClayT/PycharmProjects/computerVision",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "C:/Users/ClayT/PycharmProjects/computerVision/homework",
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\ClayT\PycharmProjects\computerVision\homework" />
+      <recent name="C:\Users\ClayT\PycharmProjects\computerVision\homework\hw1" />
       <recent name="C:\Users\ClayT\PycharmProjects\computerVision" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\ClayT\PycharmProjects\computerVision\homework" />
+      <recent name="C:\Users\ClayT\PycharmProjects\computerVision\homework\hw1" />
       <recent name="C:\Users\ClayT\PycharmProjects\computerVision\HW" />
     </key>
   </component>
@@ -54,5 +68,15 @@
       <updated>1724344078730</updated>
     </task>
     <servers />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/homework/hw1/hw1.py</url>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

@@ -8,7 +8,10 @@ def read_image(image_path: str) -> np.ndarray:
     :param image_path: String of path to file
     :return img: Image array as ndarray
     """
-    raise NotImplementedError
+    image = cv2.imread(image_path)
+    image_array = np.array(image)
+
+    return image_array
 
 
 def extract_green(img: np.ndarray) -> np.ndarray:
