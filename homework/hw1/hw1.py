@@ -130,8 +130,9 @@ def calc_stats(img: np.ndarray) -> np.ndarray:
     # Make the results more readable
     mean = mean[0][0]
     std_dev = std_dev[0][0]
+    arr = np.array([mean, std_dev])
 
-    return np.array(mean, std_dev)
+    return arr
 
 
 def shift_image(img: np.ndarray, shift_val: int) -> np.ndarray:
