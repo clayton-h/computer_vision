@@ -121,11 +121,8 @@ def calc_stats(img: np.ndarray) -> np.ndarray:
     # Create a new array
     img1 = np.array(img)
 
-    # Convert the image to grayscale
-    img_gray = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
-
     # Calculate the mean and standard deviation
-    mean, std_dev = cv2.meanStdDev(img_gray)
+    mean, std_dev = cv2.meanStdDev(img1)
 
     # Make the results more readable
     mean = mean[0][0]
@@ -149,18 +146,15 @@ def shift_image(img: np.ndarray, shift_val: int) -> np.ndarray:
     # Create a new array
     img1 = np.array(img)
 
-    # Convert the image to grayscale
-    img_gray = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
-
     # Get image dimensions
-    h, w = img_gray.shape[:2]
+    h, w = img1.shape[:2]
 
     # Define a translation matrix for shifting
     # horizontally by 2 pixels
-    t_matrix = np.float32([[1, 0, 2], [0, 1, 0]])
+    t_matrix = np.float32([[1, 0, shift_val], [0, 1, 0]])
 
     # Apply the shift
-    shift_img = cv2.warpAffine(img_gray, t_matrix, (w, h))
+    shift_img = cv2.warpAffine(img1, t_matrix, (w, h), borderMode=cv2.BORDER_CONSTANT, borderValue=(0, 0, 0))
 
     return shift_img
 

@@ -28,16 +28,16 @@ def main() -> None:
 
     embed_img = embed_middle(img1, img2, (60, 60))
 
-    img1_stats = calc_stats(img1)
-    img2_stats = calc_stats(img2)
+    img1_stats = calc_stats(img1_gray)
+    img2_stats = calc_stats(img2_gray)
 
     # # TODO: Replace None with correct calls
-    img1_shift = shift_image(img1, 2)
-    img2_shift = shift_image(img2, 2)
+    img1_shift = shift_image(img1_gray, 2)
+    img2_shift = shift_image(img2_gray, 2)
 
-    # img1_diff = None
-    # img2_diff = None
-    #
+    # img1_diff = difference_image(img1, img1_gray)
+    # img2_diff = difference_image(img2, img2_gray)
+
     # # TODO: Select appropriate sigma and call functions
     # sigma = 0
     # img1_noise_red = None
