@@ -70,6 +70,8 @@ def main() -> None:
     cv2.imwrite("hw1_pic1_swap.jpg", img1_swap)
     cv2.imwrite("hw1_pic2_swap.jpg", img2_swap)
     cv2.imwrite("hw1_embedded.jpg", embed_img)
+    print(img1_stats)
+    print(img2_stats)
 
 if __name__ == '__main__':
     main()

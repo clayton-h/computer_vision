@@ -118,9 +118,20 @@ def calc_stats(img: np.ndarray) -> np.ndarray:
     :param img: Image array as ndarray
     :return: Numpy array with mean and standard deviation in that order
     """
-    #
+    # Create a new array
+    img1 = np.array(img)
 
-    raise NotImplementedError
+    # Convert the image to grayscale
+    img_gray = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+
+    # Calculate the mean and standard deviation
+    mean, std_dev = cv2.meanStdDev(img_gray)
+
+    # Make the results more readable
+    mean = mean[0][0]
+    std_dev = std_dev[0][0]
+
+    return np.array(mean, std_dev)
 
 
 def shift_image(img: np.ndarray, shift_val: int) -> np.ndarray:
