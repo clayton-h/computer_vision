@@ -12,17 +12,17 @@ def main() -> None:
     img1_gray = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
     img2_gray = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
 
-    # img1_hsv = None
-    # img2_hsv = None
-    #
-    # img1_red = extract_red(img1)
-    # img1_green = extract_green(img1)
-    # img1_blue = extract_blue(img1)
-    #
-    # img2_red = extract_red(img2)
-    # img2_green = extract_green(img2)
-    # img2_blue = extract_blue(img2)
-    #
+    img1_hsv = cv2.cvtColor(img1, cv2.COLOR_BGR2HSV)
+    img2_hsv = cv2.cvtColor(img2, cv2.COLOR_BGR2HSV)
+
+    img1_red = extract_red(img1)
+    img1_green = extract_green(img1)
+    img1_blue = extract_blue(img1)
+
+    img2_red = extract_red(img2)
+    img2_green = extract_green(img2)
+    img2_blue = extract_blue(img2)
+
     # img1_swap = swap_red_green_channel(img1)
     # img2_swap = swap_red_green_channel(img2)
     #
@@ -57,9 +57,16 @@ def main() -> None:
     # img2_blur = blur_image(img2_spnoise, ksize)
 
     # TODO: Write out all images to appropriate files
-    cv2.imwrite("hw1_pic1_gray", img1_gray)
-    cv2.imwrite("hw1_pic2_gray", img2_gray)
-
+    cv2.imwrite("hw1_pic1_gray.jpg", img1_gray)
+    cv2.imwrite("hw1_pic2_gray.jpg", img2_gray)
+    cv2.imwrite("hw1_pic1_hsv.jpg", img1_hsv)
+    cv2.imwrite("hw1_pic2_hsv.jpg", img2_hsv)
+    cv2.imwrite("hw1_pic1_red.jpg", img1_red)
+    cv2.imwrite("hw1_pic2_red.jpg", img2_red)
+    cv2.imwrite("hw1_pic1_green.jpg", img1_green)
+    cv2.imwrite("hw1_pic2_green.jpg", img2_green)
+    cv2.imwrite("hw1_pic1_blue.jpg", img1_blue)
+    cv2.imwrite("hw1_pic2_blue.jpg", img2_blue)
 
 if __name__ == '__main__':
     main()

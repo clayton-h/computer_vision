@@ -8,7 +8,9 @@ def read_image(image_path: str) -> np.ndarray:
     :param image_path: String of path to file
     :return img: Image array as ndarray
     """
+    # read in the image
     image = cv2.imread(image_path)
+    # create a new array
     image_array = np.array(image)
 
     return image_array
@@ -20,7 +22,12 @@ def extract_green(img: np.ndarray) -> np.ndarray:
     :param img: Image array as ndarray
     :return: Image array as ndarray of just green channel
     """
-    raise NotImplementedError
+    # create a new array
+    green_img = np.zeros_like(img)
+    # isolate the green channel
+    green_img[:, :, 1] = img[:, :, 1]
+
+    return green_img
 
 
 def extract_red(img: np.ndarray) -> np.ndarray:
@@ -29,7 +36,12 @@ def extract_red(img: np.ndarray) -> np.ndarray:
     :param img: Image array as ndarray
     :return: Image array as ndarray of just red channel
     """
-    raise NotImplementedError
+    # create a new array
+    red_img = np.zeros_like(img)
+    # isolate the red channel
+    red_img[:, :, 2] = img[:, :, 2]
+
+    return red_img
 
 
 def extract_blue(img: np.ndarray) -> np.ndarray:
@@ -38,7 +50,12 @@ def extract_blue(img: np.ndarray) -> np.ndarray:
     :param img: Image array as ndarray
     :return: Image array as ndarray of just blue channel
     """
-    raise NotImplementedError
+    # create a new array
+    blue_img = np.zeros_like(img)
+    # isolate the blue channel
+    blue_img[:, :, 0] = img[:, :, 0]
+
+    return blue_img
 
 
 def swap_red_green_channel(img: np.ndarray) -> np.ndarray:
