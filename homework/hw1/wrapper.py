@@ -32,9 +32,9 @@ def main() -> None:
     img2_stats = calc_stats(img2)
 
     # # TODO: Replace None with correct calls
-    # img1_shift = None
-    # img2_shift = None
-    #
+    img1_shift = shift_image(img1, 2)
+    img2_shift = shift_image(img2, 2)
+
     # img1_diff = None
     # img2_diff = None
     #
@@ -72,6 +72,8 @@ def main() -> None:
     cv2.imwrite("hw1_embedded.jpg", embed_img)
     print(img1_stats)
     print(img2_stats)
+    cv2.imwrite("hw1_pic1_shifted.jpg", img1_shift)
+    cv2.imwrite("hw1_pic2_shifted.jpg", img2_shift)
 
 if __name__ == '__main__':
     main()

@@ -146,7 +146,23 @@ def shift_image(img: np.ndarray, shift_val: int) -> np.ndarray:
     :param shift_val: Value to shift the image
     :return: Shifted image as ndarray
     """
-    raise NotImplementedError
+    # Create a new array
+    img1 = np.array(img)
+
+    # Convert the image to grayscale
+    img_gray = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+
+    # Get image dimensions
+    h, w = img_gray.shape[:2]
+
+    # Define a translation matrix for shifting
+    # horizontally by 2 pixels
+    t_matrix = np.float32([[1, 0, 2], [0, 1, 0]])
+
+    # Apply the shift
+    shift_img = cv2.warpAffine(img_gray, t_matrix, (w, h))
+
+    return shift_img
 
 
 def difference_image(img1: np.ndarray, img2: np.ndarray) -> np.ndarray:
