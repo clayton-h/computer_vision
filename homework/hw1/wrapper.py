@@ -28,9 +28,9 @@ def main() -> None:
 
     embed_img = embed_middle(img1, img2, (60, 60))
 
-    # img1_stats = calc_stats(img1)
-    # img2_stats = calc_stats(img2)
-    #
+    img1_stats = calc_stats(img1)
+    img2_stats = calc_stats(img2)
+
     # # TODO: Replace None with correct calls
     # img1_shift = None
     # img2_shift = None

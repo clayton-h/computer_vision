@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from PyQt5.QtCore import center
 
 
 def read_image(image_path: str) -> np.ndarray:
@@ -8,9 +9,10 @@ def read_image(image_path: str) -> np.ndarray:
     :param image_path: String of path to file
     :return img: Image array as ndarray
     """
-    # read in the image
+    # Read in the image
     image = cv2.imread(image_path)
-    # create a new array
+
+    # Create a new array
     image_array = np.array(image)
 
     return image_array
@@ -22,9 +24,10 @@ def extract_green(img: np.ndarray) -> np.ndarray:
     :param img: Image array as ndarray
     :return: Image array as ndarray of just green channel
     """
-    # create a new array
+    # Create a new array
     green_img = np.zeros_like(img)
-    # isolate the green channel
+
+    # Isolate the green channel
     green_img[:, :, 1] = img[:, :, 1]
 
     return green_img
@@ -36,9 +39,10 @@ def extract_red(img: np.ndarray) -> np.ndarray:
     :param img: Image array as ndarray
     :return: Image array as ndarray of just red channel
     """
-    # create a new array
+    # Create a new array
     red_img = np.zeros_like(img)
-    # isolate the red channel
+
+    # Isolate the red channel
     red_img[:, :, 2] = img[:, :, 2]
 
     return red_img
@@ -50,9 +54,10 @@ def extract_blue(img: np.ndarray) -> np.ndarray:
     :param img: Image array as ndarray
     :return: Image array as ndarray of just blue channel
     """
-    # create a new array
+    # Create a new array
     blue_img = np.zeros_like(img)
-    # isolate the blue channel
+
+    # Isolate the blue channel
     blue_img[:, :, 0] = img[:, :, 0]
 
     return blue_img
@@ -64,9 +69,10 @@ def swap_red_green_channel(img: np.ndarray) -> np.ndarray:
     :param img: Image array as ndarray
     :return: Image array as ndarray of red and green channels swapped
     """
-    # create a new array
+    # Create a new array
     swap_img = np.zeros_like(img)
-    # swap the red and blue channels
+
+    # Swap the red and blue channels
     swap_img = img[:, :, [2, 1, 0]]
 
     return swap_img
@@ -80,7 +86,30 @@ def embed_middle(img1: np.ndarray, img2: np.ndarray, embed_size: (int, int)) -> 
     :param embed_size: Tuple of size (width, height)
     :return: Image array as ndarray of img1 with img2 embedded in the middle
     """
-    raise NotImplementedError
+    # Create new arrays
+    img1 = np.array(img1)
+    img2 = np.array(img2)
+
+    # Store image dimensions
+    h1, w1 = img1.shape[:2]
+    h2, w2 = img2.shape[:2]
+    w, h = embed_size
+
+    # Calculate top left corner of img2 inside img1
+    top_left_x1 = (w1 - w) // 2
+    top_left_y1 = (h1 - h) // 2
+
+    # Extract the middle of img2
+    center_x2 = w2 // 2
+    center_y2 = h2 // 2
+    top_left_x2 = center_x2 - w // 2
+    top_left_y2 = center_y2 - h // 2
+    middle_img2 = img2[top_left_y2:top_left_y2 + h, top_left_x2:top_left_x2 + w]
+
+    # Embed extracted img2 into img1
+    img1[top_left_y1:top_left_y1 + h, top_left_x1:top_left_x1 + w] = middle_img2
+
+    return img1
 
 
 def calc_stats(img: np.ndarray) -> np.ndarray:
@@ -89,6 +118,8 @@ def calc_stats(img: np.ndarray) -> np.ndarray:
     :param img: Image array as ndarray
     :return: Numpy array with mean and standard deviation in that order
     """
+    #
+
     raise NotImplementedError
 
 
