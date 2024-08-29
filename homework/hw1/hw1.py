@@ -87,12 +87,12 @@ def embed_middle(img1: np.ndarray, img2: np.ndarray, embed_size: (int, int)) -> 
     :return: Image array as ndarray of img1 with img2 embedded in the middle
     """
     # Create new arrays
-    img1 = np.array(img1)
-    img2 = np.array(img2)
+    img1_1 = np.array(img1)
+    img2_1 = np.array(img2)
 
     # Store image dimensions
-    h1, w1 = img1.shape[:2]
-    h2, w2 = img2.shape[:2]
+    h1, w1 = img1_1.shape[:2]
+    h2, w2 = img2_1.shape[:2]
     w, h = embed_size
 
     # Calculate top left corner of img2 inside img1
@@ -104,12 +104,12 @@ def embed_middle(img1: np.ndarray, img2: np.ndarray, embed_size: (int, int)) -> 
     center_y2 = h2 // 2
     top_left_x2 = center_x2 - w // 2
     top_left_y2 = center_y2 - h // 2
-    middle_img2 = img2[top_left_y2:top_left_y2 + h, top_left_x2:top_left_x2 + w]
+    middle_img2 = img2_1[top_left_y2:top_left_y2 + h, top_left_x2:top_left_x2 + w]
 
     # Embed extracted img2 into img1
-    img1[top_left_y1:top_left_y1 + h, top_left_x1:top_left_x1 + w] = middle_img2
+    img1_1[top_left_y1:top_left_y1 + h, top_left_x1:top_left_x1 + w] = middle_img2
 
-    return img1
+    return img1_1
 
 
 def calc_stats(img: np.ndarray) -> np.ndarray:
@@ -170,7 +170,17 @@ def difference_image(img1: np.ndarray, img2: np.ndarray) -> np.ndarray:
     :param img2: Image array as ndarray
     :return: Image array as ndarray
     """
-    raise NotImplementedError
+    # Create new arrays
+    img1_1 = np.array(img1)
+    img2_1 = np.array(img2)
+
+    # Compute the difference between the images
+    difference = cv2.absdiff(img1_1, img2_1)
+
+    # Normalize the return image
+    norm_diff = cv2.normalize(difference, None, 0, 255, cv2.NORM_MINMAX)
+
+    return norm_diff
 
 
 def add_channel_noise(img: np.ndarray, channel: int, sigma: int) -> np.ndarray:

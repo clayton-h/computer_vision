@@ -35,8 +35,8 @@ def main() -> None:
     img1_shift = shift_image(img1_gray, 2)
     img2_shift = shift_image(img2_gray, 2)
 
-    # img1_diff = difference_image(img1, img1_gray)
-    # img2_diff = difference_image(img2, img2_gray)
+    img1_diff = difference_image(img1_gray, img1_shift)
+    img2_diff = difference_image(img2_gray, img2_shift)
 
     # # TODO: Select appropriate sigma and call functions
     # sigma = 0
@@ -74,6 +74,8 @@ def main() -> None:
     print(img2_stats)
     cv2.imwrite("hw1_pic1_shifted.jpg", img1_shift)
     cv2.imwrite("hw1_pic2_shifted.jpg", img2_shift)
+    cv2.imwrite("hw1_pic1_difference.jpg", img1_diff)
+    cv2.imwrite("hw1_pic2_difference.jpg", img2_diff)
 
 if __name__ == '__main__':
     main()
