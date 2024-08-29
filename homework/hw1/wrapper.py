@@ -23,11 +23,11 @@ def main() -> None:
     img2_green = extract_green(img2)
     img2_blue = extract_blue(img2)
 
-    # img1_swap = swap_red_green_channel(img1)
-    # img2_swap = swap_red_green_channel(img2)
-    #
-    # embed_img = embed_middle(img1, img2, (60, 60))
-    #
+    img1_swap = swap_red_green_channel(img1)
+    img2_swap = swap_red_green_channel(img2)
+
+    embed_img = embed_middle(img1, img2, (60, 60))
+
     # img1_stats = calc_stats(img1)
     # img2_stats = calc_stats(img2)
     #
@@ -67,6 +67,9 @@ def main() -> None:
     cv2.imwrite("hw1_pic2_green.jpg", img2_green)
     cv2.imwrite("hw1_pic1_blue.jpg", img1_blue)
     cv2.imwrite("hw1_pic2_blue.jpg", img2_blue)
+    cv2.imwrite("hw1_pic1_swap.jpg", img1_swap)
+    cv2.imwrite("hw1_pic2_swap.jpg", img2_swap)
+    cv2.imwrite("hw1_embedded.jpg", embed_img)
 
 if __name__ == '__main__':
     main()

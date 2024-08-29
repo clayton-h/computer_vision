@@ -64,7 +64,12 @@ def swap_red_green_channel(img: np.ndarray) -> np.ndarray:
     :param img: Image array as ndarray
     :return: Image array as ndarray of red and green channels swapped
     """
-    raise NotImplementedError
+    # create a new array
+    swap_img = np.zeros_like(img)
+    # swap the red and blue channels
+    swap_img = img[:, :, [2, 1, 0]]
+
+    return swap_img
 
 
 def embed_middle(img1: np.ndarray, img2: np.ndarray, embed_size: (int, int)) -> np.ndarray:
