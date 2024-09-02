@@ -197,7 +197,23 @@ def add_channel_noise(img: np.ndarray, channel: int, sigma: int) -> np.ndarray:
     :param sigma: Gaussian noise standard deviation
     :return: Image array with gaussian noise added
     """
-    raise NotImplementedError
+    # Extract the specified channel
+    channel_data = img[:, :, channel]
+
+    # Generate Gaussian noise
+    noise = np.random.randn(*channel_data.shape) * sigma
+
+    # Add noise to the channel
+    noisy_channel = channel_data + noise
+
+    # Normalize the noisy channel to keep pixel values in the range
+    noisy_channel = np.clip(noisy_channel, 0, 255).astype(np.uint8)
+
+    # Copy the original image and replace the noisy channel
+    noisy_img = img.copy()
+    noisy_img[:, :, channel] = noisy_channel
+
+    return noisy_img
 
 
 def add_salt_pepper(img: np.ndarray) -> np.ndarray:
