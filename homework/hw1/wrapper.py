@@ -48,6 +48,19 @@ def main() -> None:
     img2_noise_green = add_channel_noise(img2, 1, sigma)
     img2_noise_blue = add_channel_noise(img2, 0, sigma)
 
+    #
+    # Why are some channels more affected visually by noise than others?
+    #
+    # Apparently, the human eye is more sensitive to green than other colors.
+    # Green noise is thereby more noticeable than red or blue noise.
+    #
+    # This is exasperated by the fact that green contributes the most to the
+    # perceived brightness and detail of an image.
+    #
+    # Not to mention the contents of the images themselves;
+    # images with more prominent color channels will appear noisier.
+    #
+
     # img1_spnoise = add_salt_pepper(img1_gray)
     # img2_spnoise = add_salt_pepper(img2_gray)
 
