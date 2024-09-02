@@ -61,8 +61,8 @@ def main() -> None:
     # images with more prominent color channels will appear noisier.
     #
 
-    # img1_spnoise = add_salt_pepper(img1_gray)
-    # img2_spnoise = add_salt_pepper(img2_gray)
+    img1_spnoise = add_salt_pepper(img1_gray)
+    img2_spnoise = add_salt_pepper(img2_gray)
 
     # TODO: Select appropriate ksize, must be odd
     # ksize = 0
@@ -99,12 +99,15 @@ def main() -> None:
     cv2.imwrite("hw1_pic1_difference.jpg", img1_diff)
     cv2.imwrite("hw1_pic2_difference.jpg", img2_diff)
 
-    cv2.imwrite("hw1_pic1_red_noise.jpg", img1_noise_red)
-    cv2.imwrite("hw1_pic1_green_noise.jpg", img1_noise_green)
-    cv2.imwrite("hw1_pic1_blue_noise.jpg", img1_noise_blue)
-    cv2.imwrite("hw1_pic2_red_noise.jpg", img2_noise_red)
-    cv2.imwrite("hw1_pic2_green_noise.jpg", img2_noise_green)
-    cv2.imwrite("hw1_pic2_blue_noise.jpg", img2_noise_blue)
+    cv2.imwrite("hw1_pic1_rednoise.jpg", img1_noise_red)
+    cv2.imwrite("hw1_pic1_greennoise.jpg", img1_noise_green)
+    cv2.imwrite("hw1_pic1_bluenoise.jpg", img1_noise_blue)
+    cv2.imwrite("hw1_pic2_rednoise.jpg", img2_noise_red)
+    cv2.imwrite("hw1_pic2_greennoise.jpg", img2_noise_green)
+    cv2.imwrite("hw1_pic2_bluenoise.jpg", img2_noise_blue)
+
+    cv2.imwrite("hw1_pic1_spnoise.jpg", img1_spnoise)
+    cv2.imwrite("hw1_pic2_spnoise.jpg", img2_spnoise)
 
 if __name__ == '__main__':
     main()

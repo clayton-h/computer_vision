@@ -224,7 +224,23 @@ def add_salt_pepper(img: np.ndarray) -> np.ndarray:
     :param img: Image array as ndarray
     :return: Image array with salt and pepper noise
     """
-    raise NotImplementedError
+    # Variables for salt/pepper chance
+    salt_chance = .03
+    pepper_chance = .03
+
+    # Generate a random matrix with values b/w 0 and 1
+    random_matrix = np.random.rand(*img.shape[:2])
+
+    # Copy the original image
+    noisy_img = img.copy()
+
+    # Add salt noise (white pixels)
+    noisy_img[random_matrix < salt_chance] = 255
+
+    # Add pepper noise (black pixels)
+    noisy_img[random_matrix > 1 - pepper_chance] = 0
+
+    return noisy_img
 
 
 def blur_image(img: np.ndarray, ksize: int) -> np.ndarray:
