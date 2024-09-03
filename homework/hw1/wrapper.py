@@ -38,7 +38,7 @@ def main() -> None:
     img1_diff = difference_image(img1_gray, img1_shift)
     img2_diff = difference_image(img2_gray, img2_shift)
 
-    # TODO: Select appropriate sigma and call functions
+    # DONE: Select appropriate sigma and call functions
     sigma = 15
     img1_noise_red = add_channel_noise(img1, 2, sigma)
     img1_noise_green = add_channel_noise(img1, 1, sigma)
@@ -65,11 +65,11 @@ def main() -> None:
     img2_spnoise = add_salt_pepper(img2_gray)
 
     # TODO: Select appropriate ksize, must be odd
-    # ksize = 0
-    # img_blur = blur_image(img1_spnoise, ksize)
-    # img2_blur = blur_image(img2_spnoise, ksize)
+    ksize = (3, 3)
+    img1_blur = blur_image(img1, ksize)
+    img2_blur = blur_image(img2, ksize)
 
-    # TODO: Write out all images to appropriate files
+    # DONE: Write out all images to appropriate files
     cv2.imwrite("hw1_pic1_gray.jpg", img1_gray)
     cv2.imwrite("hw1_pic2_gray.jpg", img2_gray)
 
@@ -108,6 +108,9 @@ def main() -> None:
 
     cv2.imwrite("hw1_pic1_spnoise.jpg", img1_spnoise)
     cv2.imwrite("hw1_pic2_spnoise.jpg", img2_spnoise)
+
+    cv2.imwrite("hw1_pic1_blur.jpg", img1_blur)
+    cv2.imwrite("hw1_pic2_blur.jpg", img2_blur)
 
 if __name__ == '__main__':
     main()
