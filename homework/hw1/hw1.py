@@ -243,7 +243,7 @@ def add_salt_pepper(img: np.ndarray) -> np.ndarray:
     return noisy_img
 
 
-def blur_image(img: np.ndarray, ksize: tuple) -> np.ndarray:
+def blur_image(img: np.ndarray, ksize: int) -> np.ndarray:
     """
     This function takes an image and returns the blurred image
 
@@ -256,6 +256,6 @@ def blur_image(img: np.ndarray, ksize: tuple) -> np.ndarray:
     blurred_img = img.copy()
 
     # Blur the image
-    blurred_img = cv2.GaussianBlur(blurred_img, ksize, 1.5)
+    blurred_img = cv2.medianBlur(blurred_img, ksize)
 
     return blurred_img

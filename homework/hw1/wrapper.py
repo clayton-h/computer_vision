@@ -64,10 +64,10 @@ def main() -> None:
     img1_spnoise = add_salt_pepper(img1_gray)
     img2_spnoise = add_salt_pepper(img2_gray)
 
-    # TODO: Select appropriate ksize, must be odd
-    ksize = (3, 3)
-    img1_blur = blur_image(img1, ksize)
-    img2_blur = blur_image(img2, ksize)
+    # DONE: Select appropriate ksize, must be odd
+    ksize = 5
+    img1_blur = blur_image(img1_spnoise, ksize)
+    img2_blur = blur_image(img2_spnoise, ksize)
 
     # DONE: Write out all images to appropriate files
     cv2.imwrite("hw1_pic1_gray.jpg", img1_gray)
