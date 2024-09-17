@@ -10,7 +10,16 @@ def sign_lines(img: np.ndarray) -> np.ndarray:
     :param img: Image as numpy array
     :return: Numpy array of lines.
     """
-    raise NotImplemented
+    # Copy the image
+    img_cp = img.copy()
+
+    img_gray = cv2.cvtColor(img_cp, cv2.COLOR_BGR2GRAY)
+    img_blur = cv2.GaussianBlur(img_gray, (0, 0), 1.5)
+    img_edge = cv2.Canny(img_blur, 100, 200)
+    lines = cv2.HoughLines(img_edge, 1, np.pi / 180, 60)
+
+    return lines
+
 
 
 def sign_circle(img: np.ndarray) -> np.ndarray:
@@ -19,7 +28,24 @@ def sign_circle(img: np.ndarray) -> np.ndarray:
     :param img: Image as numpy array
     :return: Numpy array of circles.
     """
-    raise NotImplemented
+    # Copy the image
+    img_cp = img.copy()
+
+    img_gray = cv2.cvtColor(img_cp, cv2.COLOR_BGR2GRAY)
+    img_blur = cv2.GaussianBlur(img_gray, (0, 0), 1.5)
+
+    circles = cv2.HoughCircles(
+        img_blur,
+        cv2.HOUGH_GRADIENT,
+        dp=1,
+        minDist=20,
+        param1=50,
+        param2=30,
+        minRadius=10,
+        maxRadius=50
+    )
+
+    return circles
 
 
 def sign_axis(lines: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
@@ -46,7 +72,33 @@ def identify_traffic_light(img: np.ndarray) -> tuple:
              (140, 100, 'None') or (140, 100, 'Red')
              In the case of no light lit, coordinates can be just center of traffic light
     """
-    raise NotImplemented
+    # Copy the image
+    img_cp = img.copy()
+
+    circles = sign_circle(img_cp)
+
+    if circles is not None:
+        # Convert circle coordinates to integers
+        circles = np.uint16(np.around(circles))
+
+        for circle in circles[0, :]:
+            x, y, radius = circle[0], circle[1], circle[2]
+
+            mask = np.zeros_like(img_cp)
+            cv2.circle(mask, (x, y), radius, (255, 255, 255), thickness=1)
+            masked_img = cv2.bitwise_and(img_cp, mask)
+
+            avg_color = cv2.mean(masked_img, mask=cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY))
+
+            # Check for yellow (both red and green channels are high)
+            if avg_color[1] > 150 and avg_color[2] > 150:
+                return (x, y, 'Yellow')
+            elif avg_color[2] > 150:
+                return (x, y, 'Red')
+            elif avg_color[1] > 150:
+                return (x, y, 'Green')
+
+    return (None, None, 'None')
 
 
 def identify_stop_sign(img: np.ndarray) -> tuple:
@@ -76,6 +128,11 @@ def identify_construction(img: np.ndarray) -> tuple:
     :return: tuple with x, y, and sign name
              (x, y, 'construction')
     """
+    # Copy the image
+    img_cp = img.copy()
+
+    
+
     raise NotImplemented
 
 
