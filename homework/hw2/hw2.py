@@ -155,12 +155,12 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
         avg_x = np.mean(x).astype(int)
         avg_y = np.mean(y).astype(int)
 
-        # Offsets to fine-tune circle position
-        offset_x = -1 # Move left
-        offset_y = 3 # Move down
-
-        avg_x += offset_x
-        avg_y += offset_y
+        # # Offsets to fine-tune circle position
+        # offset_x = -1 # Move left
+        # offset_y = 3 # Move down
+        #
+        # avg_x += offset_x
+        # avg_y += offset_y
 
         return avg_x, avg_y, 'stop'
 
@@ -205,12 +205,12 @@ def identify_yield(img: np.ndarray) -> tuple:
         avg_x = np.mean(x).astype(int)
         avg_y = np.mean(y).astype(int)
 
-        # Offsets to fine-tune circle position
-        offset_x = -1 # Move left
-        offset_y = 3 # Move down
-
-        avg_x += offset_x
-        avg_y += offset_y
+        # # Offsets to fine-tune circle position
+        # offset_x = -1 # Move left
+        # offset_y = 3 # Move down
+        #
+        # avg_x += offset_x
+        # avg_y += offset_y
 
         return avg_x, avg_y, 'yield'
 
@@ -254,13 +254,13 @@ def identify_construction(img: np.ndarray) -> tuple:
         avg_x = np.mean(x).astype(int)
         avg_y = np.mean(y).astype(int)
 
-        # Offsets to fine-tune circle position
-        offset_x = -1  # Move left
-        offset_y = 3  # Move down
-
-        # Apply offsets
-        avg_x += offset_x
-        avg_y += offset_y
+        # # Offsets to fine-tune circle position
+        # offset_x = -1  # Move left
+        # offset_y = 3  # Move down
+        #
+        # # Apply offsets
+        # avg_x += offset_x
+        # avg_y += offset_y
 
         # Return the detected sign center coordinates and label
         return avg_x, avg_y, 'construction'
@@ -276,7 +276,45 @@ def identify_warning(img: np.ndarray) -> tuple:
     :return: tuple with x, y, and sign name
              (x, y, 'warning')
     """
-    raise NotImplemented
+    # Copy the image
+    img_cp = img.copy()
+
+    hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
+
+    # Define the color range for detecting yellow
+    lower_yellow = np.array([20, 100, 100])
+    upper_yellow = np.array([30, 255, 255])
+
+    # Define the color range for detecting yellow
+    mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
+
+    # Apply the mask to the image
+    masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
+
+    # Detect sign lines from the masked image
+    lines = sign_lines(masked_img)
+
+    if lines is None:
+        return 0, 0, 'None'
+
+    # Get x and y coordinates from detected lines
+    x, y = sign_axis(lines)
+
+    # Calculate the average position
+    if len(x) > 0 and len(y) > 0:
+        avg_x = np.mean(x).astype(int)
+        avg_y = np.mean(y).astype(int)
+
+        # # Offsets to fine-tune circle position
+        # offset_x = 1  # Move right
+        # offset_y = 1  # Move down
+        #
+        # avg_x += offset_x
+        # avg_y += offset_y
+
+        return avg_x, avg_y, 'rr_crossing'
+
+    return 0, 0, 'None'
 
 
 def identify_rr_crossing(img: np.ndarray) -> tuple:
@@ -315,12 +353,12 @@ def identify_rr_crossing(img: np.ndarray) -> tuple:
         avg_x = np.mean(x).astype(int)
         avg_y = np.mean(y).astype(int)
 
-        # Offsets to fine-tune circle position
-        offset_x = 11  # Move right
-        offset_y = -5  # Move up
-
-        avg_x += offset_x
-        avg_y += offset_y
+        # # Offsets to fine-tune circle position
+        # offset_x = 11  # Move right
+        # offset_y = -5  # Move up
+        #
+        # avg_x += offset_x
+        # avg_y += offset_y
 
         return avg_x, avg_y, 'rr_crossing'
 
@@ -364,8 +402,8 @@ def identify_services(img: np.ndarray) -> tuple:
         avg_y = np.mean(y).astype(int)
 
         # Offsets to fine-tune circle position
-        offset_x = 11  # Move right
-        offset_y = -5  # Move up
+        offset_x = 1  # Move right
+        offset_y = 1  # Move down
 
         avg_x += offset_x
         avg_y += offset_y
