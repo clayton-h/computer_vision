@@ -63,11 +63,11 @@ def part1() -> None:
 
 def part2() -> None:
     # Only include the construction image and its output file
-    sign_images = ['images/rr_crossing.jpg']
-    file_name = ['rr_crossing_txt.jpg']
+    sign_images = ['images/services.jpg']
+    file_name = ['services_txt.jpg']
 
     # Only include the function for identifying construction signs
-    sign_functions = [identify_rr_crossing]
+    sign_functions = [identify_services]
 
     # Process only the construction sign
     for img_in, file_out, function_call in zip(sign_images, file_name, sign_functions):
