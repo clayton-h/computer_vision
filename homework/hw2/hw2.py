@@ -13,13 +13,15 @@ def sign_lines(img: np.ndarray) -> np.ndarray:
     # Copy the image
     img_cp = img.copy()
 
+    # Image grayscale conversion and Gaussian blur
     img_gray = cv2.cvtColor(img_cp, cv2.COLOR_BGR2GRAY)
     img_blur = cv2.GaussianBlur(img_gray, (0, 0), 1.5)
+
+    # Edge and line detection
     img_edge = cv2.Canny(img_blur, 100, 200)
-    lines = cv2.HoughLines(img_edge, 1, np.pi / 180, 60)
+    lines = cv2.HoughLinesP(img_edge, 1, np.pi / 180, threshold=10, minLineLength=50, maxLineGap=15)
 
     return lines
-
 
 
 def sign_circle(img: np.ndarray) -> np.ndarray:
@@ -57,9 +59,21 @@ def sign_axis(lines: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     :return: Tuple of np.ndarray and np.ndarray with each np.ndarray consisting of the x coordinates and y coordinates
              respectively.
     """
-    xaxis = np.empty(0, dtype=np.int32)
-    yaxis = np.empty(0, dtype=np.int32)
-    return xaxis, yaxis
+    # Initialize arrays to hold x and y coordinates
+    x_coords = []
+    y_coords = []
+
+    # Iterate over the lines to extract coordinates
+    for line in lines:
+        for x1, y1, x2, y2 in line:
+            # Append the midpoints of the lines to the respective lists
+            mid_x = (x1 + x2) // 2
+            mid_y = (y1 + y2) // 2
+            x_coords.append(mid_x)
+            y_coords.append(mid_y)
+
+    # Convert lists to numpy arrays
+    return np.array(x_coords, dtype=np.int32), np.array(y_coords, dtype=np.int32)
 
 
 def identify_traffic_light(img: np.ndarray) -> tuple:
@@ -75,6 +89,7 @@ def identify_traffic_light(img: np.ndarray) -> tuple:
     # Copy the image
     img_cp = img.copy()
 
+    # Detect circles
     circles = sign_circle(img_cp)
 
     if circles is not None:
@@ -92,13 +107,13 @@ def identify_traffic_light(img: np.ndarray) -> tuple:
 
             # Check for yellow (both red and green channels are high)
             if avg_color[1] > 150 and avg_color[2] > 150:
-                return (x, y, 'Yellow')
+                return x, y, 'Yellow'
             elif avg_color[2] > 150:
-                return (x, y, 'Red')
+                return x, y, 'Red'
             elif avg_color[1] > 150:
-                return (x, y, 'Green')
+                return x, y, 'Green'
 
-    return (None, None, 'None')
+    return None, None, 'None'
 
 
 def identify_stop_sign(img: np.ndarray) -> tuple:
@@ -108,7 +123,47 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
     :return: tuple with x, y, and sign name
              (x, y, 'stop')
     """
-    raise NotImplemented
+    img_cp = img.copy()
+    hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
+
+    # Define the color range for detecting red
+    lower_red1 = np.array([0, 100, 100])
+    upper_red1 = np.array([10, 255, 255])
+    lower_red2 = np.array([170, 100, 100])
+    upper_red2 = np.array([180, 255, 255])
+
+    # Define the color range for detecting orange
+    mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
+    mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
+    mask = cv2.bitwise_or(mask1, mask2)
+
+    # Create a mask for the red
+    masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
+
+    # Detect sign lines from the masked image
+    lines = sign_lines(masked_img)
+
+    if lines is None:
+        return None, None, 'None'
+
+    # Get x and y coordinates from detected lines
+    x, y = sign_axis(lines)
+
+    # Calculate the average position
+    if len(x) > 0 and len(y) > 0:
+        avg_x = np.mean(x).astype(int)
+        avg_y = np.mean(y).astype(int)
+
+        # # Offsets to fine-tune circle position
+        offset_x = -1 # Move left
+        offset_y = 3 # Move down
+
+        avg_x += offset_x
+        avg_y += offset_y
+
+        return avg_x, avg_y, 'stop'
+
+    return None, None, 'None'
 
 
 def identify_yield(img: np.ndarray) -> tuple:
@@ -118,7 +173,47 @@ def identify_yield(img: np.ndarray) -> tuple:
     :return: tuple with x, y, and sign name
              (x, y, 'yield')
     """
-    raise NotImplemented
+    img_cp = img.copy()
+    hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
+
+    # Lower red hue (0-10 degrees)
+    lower_red1 = np.array([0, 100, 100])
+    upper_red1 = np.array([10, 255, 255])
+    lower_red2 = np.array([170, 100, 100])
+    upper_red2 = np.array([180, 255, 255])
+
+    # Define the color range for detecting red
+    mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
+    mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
+    mask = cv2.bitwise_or(mask1, mask2)
+
+    # Apply the mask to the image
+    masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
+
+    # Detect sign lines from the masked image
+    lines = sign_lines(masked_img)
+
+    if lines is None:
+        return None, None, 'None'
+
+    # Get x and y coordinates from detected lines
+    x, y = sign_axis(lines)
+
+    # Calculate the average position
+    if len(x) > 0 and len(y) > 0:
+        avg_x = np.mean(x).astype(int)
+        avg_y = np.mean(y).astype(int)
+
+        # Offsets to fine-tune circle position
+        offset_x = -1 # Move left
+        offset_y = 3 # Move down
+
+        avg_x += offset_x
+        avg_y += offset_y
+
+        return avg_x, avg_y, 'yield'
+
+    return None, None, 'None'
 
 
 def identify_construction(img: np.ndarray) -> tuple:
@@ -131,9 +226,46 @@ def identify_construction(img: np.ndarray) -> tuple:
     # Copy the image
     img_cp = img.copy()
 
-    
+    # Convert the image to HSV color space
+    hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
-    raise NotImplemented
+    # Define the color range for detecting orange
+    lower_orange = np.array([10, 100, 100])
+    upper_orange = np.array([25, 255, 255])
+
+    # Create a mask for the orange color
+    mask = cv2.inRange(hsv, lower_orange, upper_orange)
+
+    # Apply the mask to the image
+    masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
+
+    # Detect sign lines
+    lines = sign_lines(masked_img)
+
+    if lines is None:
+        return None, None, 'None'
+
+    # Get x and y coordinates from detected lines
+    x, y = sign_axis(lines)
+
+    # Calculate the average position
+    if len(x) > 0 and len(y) > 0:
+        avg_x = np.mean(x).astype(int)
+        avg_y = np.mean(y).astype(int)
+
+        # Offsets to fine-tune circle position
+        offset_x = -1  # Move left
+        offset_y = 3  # Move down
+
+        # Apply offsets
+        avg_x += offset_x
+        avg_y += offset_y
+
+        # Return the detected sign center coordinates and label
+        return avg_x, avg_y, 'construction'
+
+    return None, None, 'None'
+
 
 
 def identify_warning(img: np.ndarray) -> tuple:
@@ -153,7 +285,38 @@ def identify_rr_crossing(img: np.ndarray) -> tuple:
     :return: tuple with x, y, and sign name
              (x, y, 'rr_crossing')
     """
-    raise NotImplemented
+    # Copy the image
+    img_cp = img.copy()
+
+    # Detect circles
+    circles = sign_circle(img_cp)
+
+    if circles is not None:
+        # Convert circle coordinates to integers
+        circles = np.uint16(np.around(circles))
+
+        for circle in circles[0, :]:
+            x, y, radius = circle[0], circle[1], circle[2]
+
+            # Create a mask for the detected circle
+            mask = np.zeros_like(img_cp)
+            cv2.circle(mask, (x, y), radius, (255, 255, 255), thickness=-1)
+            masked_img = cv2.bitwise_and(img_cp, mask)
+
+            # Convert the image to HSV and create a mask for yellow
+            hsv_img = cv2.cvtColor(masked_img, cv2.COLOR_BGR2HSV)
+            lower_yellow = np.array([25, 100, 100])
+            upper_yellow = np.array([35, 255, 255])
+            yellow_mask = cv2.inRange(hsv_img, lower_yellow, upper_yellow)
+
+            # Calculate the average color in the masked area
+            avg_color = cv2.mean(hsv_img, mask=yellow_mask)
+
+            # Check if the area is predominantly yellow
+            if 25 <= avg_color[0] <= 35:  # H value in the yellow range
+                return x, y, 'Yellow'
+
+    return None, None, 'None'
 
 
 def identify_services(img: np.ndarray) -> tuple:

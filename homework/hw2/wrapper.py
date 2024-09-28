@@ -44,17 +44,32 @@ def part1() -> None:
         img_out = mark_signs(tl_image, (x, y), color)
         cv2.imwrite(f"{tl.split('/')[1].split('.')[0]}_txt.jpg", img_out)
 
+# def part2() -> None:
+#     sign_images = ['images/construction.jpg', 'images/regulatory.jpg', 'images/regulatory_yield.jpg',
+#                    'images/rr_crossing.jpg', 'images/services.jpg', 'images/warning.jpg']
+#
+#     file_name = ['construction_txt.jpg', 'regulatory_txt.jpg', 'regulatory_yield_txt.jpg',
+#                  'rr_crossing_txt.jpg', 'services_txt.jpg', 'warning_txt.jpg']
+#
+#     sign_functions = [identify_construction] # , identify_stop_sign, identify_yield,
+#                       # identify_rr_crossing, identify_services, identify_warning]
+#
+#     for img_in, file_out, function_call in zip(sign_images, file_name, sign_functions):
+#         img = cv2.imread(img_in)
+#         x, y, name = function_call(img)
+#
+#         img_out = mark_signs(img, (x, y), state=name)
+#         cv2.imwrite(file_out, img_out)
 
 def part2() -> None:
-    sign_images = ['images/construction.jpg', 'images/regulatory.jpg', 'images/regulatory_yield.jpg',
-                   'images/rr_crossing.jpg', 'images/services.jpg', 'images/warning.jpg']
+    # Only include the construction image and its output file
+    sign_images = ['images/rr_crossing.jpg']
+    file_name = ['rr_crossing_txt.jpg']
 
-    file_name = ['construction_txt.jpg', 'regulatory_txt.jpg', 'regulatory_yield_txt.jpg',
-                 'rr_crossing_txt.jpg', 'services_txt.jpg', 'warning_txt.jpg']
+    # Only include the function for identifying construction signs
+    sign_functions = [identify_rr_crossing]
 
-    sign_functions = [identify_construction, identify_stop_sign, identify_yield,
-                      identify_rr_crossing, identify_services, identify_warning]
-
+    # Process only the construction sign
     for img_in, file_out, function_call in zip(sign_images, file_name, sign_functions):
         img = cv2.imread(img_in)
         x, y, name = function_call(img)
