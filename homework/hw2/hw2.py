@@ -35,17 +35,17 @@ def sign_circle(img: np.ndarray) -> np.ndarray:
 
     # Convert the image to grayscale and blur
     img_gray = cv2.cvtColor(img_cp, cv2.COLOR_BGR2GRAY)
-    img_blur = cv2.GaussianBlur(img_gray, (0, 0), 1.5)
+    img_blur = cv2.GaussianBlur(img_gray, (0, 0), 2)
 
     circles = cv2.HoughCircles(
         img_blur,
         cv2.HOUGH_GRADIENT,
-        dp=1,
-        minDist=20,
+        dp=1.2,
+        minDist=30,
         param1=50,
-        param2=30,
+        param2=20,
         minRadius=10,
-        maxRadius=50
+        maxRadius=100
     )
 
     return circles
@@ -124,7 +124,10 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
     :return: tuple with x, y, and sign name
              (x, y, 'stop')
     """
+    # Copy the image
     img_cp = img.copy()
+
+    # Convert the image to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
     # Define the color range for detecting red
@@ -167,7 +170,10 @@ def identify_yield(img: np.ndarray) -> tuple:
     :return: tuple with x, y, and sign name
              (x, y, 'yield')
     """
+    # Copy the image
     img_cp = img.copy()
+
+    # Convert the image to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
     # Lower red hue (0-10 degrees)
@@ -213,7 +219,7 @@ def identify_construction(img: np.ndarray) -> tuple:
     # Copy the image
     img_cp = img.copy()
 
-    # Convert the image to HSV color space
+    # Convert the image to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
     # Define the color range for detecting orange
@@ -257,6 +263,7 @@ def identify_warning(img: np.ndarray) -> tuple:
     # Copy the image
     img_cp = img.copy()
 
+    # Convert the image to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
     # Define the color range for detecting yellow
@@ -298,33 +305,32 @@ def identify_rr_crossing(img: np.ndarray) -> tuple:
     # Copy the image
     img_cp = img.copy()
 
+    # Convert the image to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
     # Define the color range for detecting yellow
     lower_yellow = np.array([20, 100, 100])
     upper_yellow = np.array([30, 255, 255])
 
-    # Define the color range for detecting yellow
+    # Mask the yellow regions
     mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
 
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
 
-    # Detect sign lines from the masked image
-    lines = sign_lines(masked_img)
+    # Detect circles
+    circles = sign_circle(masked_img)
 
-    if lines is None:
-        return 0, 0, 'None'
+    if circles is not None:
+        # Convert circles to integer values
+        circles = np.round(circles[0, :]).astype("int")
 
-    # Get x and y coordinates from detected lines
-    x, y = sign_axis(lines)
-
-    # Calculate the average position
-    if len(x) > 0 and len(y) > 0:
-        avg_x = np.mean(x).astype(int)
-        avg_y = np.mean(y).astype(int)
-
-        return avg_x, avg_y, 'rr_crossing'
+        # Get the (x, y) coordinates and radius of the first detected circle
+        for (x, y, r) in circles:
+            # Check for sign characteristics, e.g., circle size range
+            if 20 <= r <= 100:
+                # Return the center coordinates of the detected circle
+                return x, y, 'rr_crossing'
 
     return 0, 0, 'None'
 
