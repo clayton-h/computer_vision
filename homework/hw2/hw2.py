@@ -349,15 +349,15 @@ def identify_services(img: np.ndarray) -> tuple:
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
     # Define the color range for detecting blue
-    lower_blue = np.array([100, 150, 100])  # Adjusted lower value for better detection
-    upper_blue = np.array([130, 255, 255])  # High saturation and brightness
+    lower_blue = np.array([230, 200, 250])
+    upper_blue = np.array([245, 255, 255])
 
     # Define the color range for detecting white (for the border)
     lower_white = np.array([0, 0, 200])
     upper_white = np.array([180, 30, 255])
 
     # Define the color range for detecting blue and white
-    mask_blue = cv2.inRange(hsv, lower_blue, upper_blue)
+    mask_blue= cv2.inRange(hsv, lower_blue, upper_blue)
     mask_white = cv2.inRange(hsv, lower_white, upper_white)
     mask = cv2.bitwise_or(mask_blue, mask_white)
 
