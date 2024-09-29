@@ -283,7 +283,7 @@ def identify_warning(img: np.ndarray) -> tuple:
         avg_x = np.mean(x).astype(int)
         avg_y = np.mean(y).astype(int)
 
-        return avg_x, avg_y, 'rr_crossing'
+        return avg_x, avg_y, 'warning'
 
     return 0, 0, 'None'
 
@@ -385,38 +385,36 @@ def identify_signs(img: np.ndarray) -> np.ndarray:
     # Initialize an empty list to store the detected signs
     found_signs = []
 
-    # Call sign detection functions
+    # Call sign detection function
     x, y, sign_name = identify_construction(img_cp)
-    print(f"Sign detected at ({x}, {y}) with name: {sign_name}")
     if sign_name != 'None':
         found_signs.append([x, y, sign_name])
 
-    # Call sign detection functions
+    # Call sign detection function
     x, y, sign_name = identify_stop_sign(img_cp)
     if sign_name != 'None':
         found_signs.append([x, y, sign_name])
 
-    # Call sign detection functions
+    # Call sign detection function
     x, y, sign_name = identify_yield(img_cp)
     if sign_name != 'None':
         found_signs.append([x, y, sign_name])
 
-    # Call sign detection functions
+    # Call sign detection function
     x, y, sign_name = identify_rr_crossing(img_cp)
     if sign_name != 'None':
         found_signs.append([x, y, sign_name])
 
-    # Call sign detection functions
+    # Call sign detection function
     x, y, sign_name = identify_services(img_cp)
     if sign_name != 'None':
         found_signs.append([x, y, sign_name])
 
-    # Call sign detection functions
+    # Call sign detection function
     x, y, sign_name = identify_warning(img_cp)
     if sign_name != 'None':
         found_signs.append([x, y, sign_name])
 
-    # Convert the list of detected signs to a numpy array and return
     return found_signs
 
 
@@ -431,7 +429,46 @@ def identify_signs_noisy(img: np.ndarray) -> np.ndarray:
              [[x, y, 'stop'],
               [x, y, 'construction']]
     """
-    raise NotImplemented
+    # Copy the image
+    img_cp = img.copy()
+
+    # Blur the image
+    img_blur = cv2.GaussianBlur(img_cp, (0, 0), 1.5)
+
+    # Initialize an empty list to store the detected signs
+    found_signs = []
+
+    # Call sign detection function
+    x, y, sign_name = identify_construction(img_blur)
+    if sign_name != 'None':
+        found_signs.append([x, y, sign_name])
+
+    # Call sign detection function
+    x, y, sign_name = identify_stop_sign(img_blur)
+    if sign_name != 'None':
+        found_signs.append([x, y, sign_name])
+
+    # Call sign detection function
+    x, y, sign_name = identify_yield(img_blur)
+    if sign_name != 'None':
+        found_signs.append([x, y, sign_name])
+
+    # Call sign detection function
+    x, y, sign_name = identify_rr_crossing(img_blur)
+    if sign_name != 'None':
+        found_signs.append([x, y, sign_name])
+
+    # Call sign detection function
+    x, y, sign_name = identify_services(img_blur)
+    if sign_name != 'None':
+        found_signs.append([x, y, sign_name])
+
+    # Call sign detection function
+    x, y, sign_name = identify_warning(img_blur)
+    if sign_name != 'None':
+        found_signs.append([x, y, sign_name])
+
+    return found_signs
 
 
 def identify_signs_real(img: np.ndarray) -> np.ndarray:
@@ -448,4 +485,40 @@ def identify_signs_real(img: np.ndarray) -> np.ndarray:
              [[x, y, 'stop'],
               [x, y, 'construction']]
     """
-    raise NotImplemented
+    # Copy the image
+    img_cp = img.copy()
+
+    # Initialize an empty list to store the detected signs
+    found_signs = []
+
+    # Call sign detection function
+    x, y, sign_name = identify_construction(img_cp)
+    if sign_name != 'None':
+        found_signs.append([x, y, sign_name])
+
+    # Call sign detection function
+    x, y, sign_name = identify_stop_sign(img_cp)
+    if sign_name != 'None':
+        found_signs.append([x, y, sign_name])
+
+    # Call sign detection function
+    x, y, sign_name = identify_yield(img_cp)
+    if sign_name != 'None':
+        found_signs.append([x, y, sign_name])
+
+    # Call sign detection function
+    x, y, sign_name = identify_rr_crossing(img_cp)
+    if sign_name != 'None':
+        found_signs.append([x, y, sign_name])
+
+    # Call sign detection function
+    x, y, sign_name = identify_services(img_cp)
+    if sign_name != 'None':
+        found_signs.append([x, y, sign_name])
+
+    # Call sign detection function
+    x, y, sign_name = identify_warning(img_cp)
+    if sign_name != 'None':
+        found_signs.append([x, y, sign_name])
+
+    return found_signs
