@@ -155,13 +155,6 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
         avg_x = np.mean(x).astype(int)
         avg_y = np.mean(y).astype(int)
 
-        # # Offsets to fine-tune circle position
-        # offset_x = -1 # Move left
-        # offset_y = 3 # Move down
-        #
-        # avg_x += offset_x
-        # avg_y += offset_y
-
         return avg_x, avg_y, 'stop'
 
     return 0, 0, 'None'
@@ -205,13 +198,6 @@ def identify_yield(img: np.ndarray) -> tuple:
         avg_x = np.mean(x).astype(int)
         avg_y = np.mean(y).astype(int)
 
-        # # Offsets to fine-tune circle position
-        # offset_x = -1 # Move left
-        # offset_y = 3 # Move down
-        #
-        # avg_x += offset_x
-        # avg_y += offset_y
-
         return avg_x, avg_y, 'yield'
 
     return 0, 0, 'None'
@@ -253,14 +239,6 @@ def identify_construction(img: np.ndarray) -> tuple:
     if len(x) > 0 and len(y) > 0:
         avg_x = np.mean(x).astype(int)
         avg_y = np.mean(y).astype(int)
-
-        # # Offsets to fine-tune circle position
-        # offset_x = -1  # Move left
-        # offset_y = 3  # Move down
-        #
-        # # Apply offsets
-        # avg_x += offset_x
-        # avg_y += offset_y
 
         # Return the detected sign center coordinates and label
         return avg_x, avg_y, 'construction'
@@ -305,13 +283,6 @@ def identify_warning(img: np.ndarray) -> tuple:
         avg_x = np.mean(x).astype(int)
         avg_y = np.mean(y).astype(int)
 
-        # # Offsets to fine-tune circle position
-        # offset_x = 1  # Move right
-        # offset_y = 1  # Move down
-        #
-        # avg_x += offset_x
-        # avg_y += offset_y
-
         return avg_x, avg_y, 'rr_crossing'
 
     return 0, 0, 'None'
@@ -352,13 +323,6 @@ def identify_rr_crossing(img: np.ndarray) -> tuple:
     if len(x) > 0 and len(y) > 0:
         avg_x = np.mean(x).astype(int)
         avg_y = np.mean(y).astype(int)
-
-        # # Offsets to fine-tune circle position
-        # offset_x = 11  # Move right
-        # offset_y = -5  # Move up
-        #
-        # avg_x += offset_x
-        # avg_y += offset_y
 
         return avg_x, avg_y, 'rr_crossing'
 
@@ -401,13 +365,6 @@ def identify_services(img: np.ndarray) -> tuple:
         avg_x = np.mean(x).astype(int)
         avg_y = np.mean(y).astype(int)
 
-        # Offsets to fine-tune circle position
-        offset_x = 1  # Move right
-        offset_y = 1  # Move down
-
-        avg_x += offset_x
-        avg_y += offset_y
-
         return avg_x, avg_y, 'rr_crossing'
 
     return 0, 0, 'None'
@@ -422,7 +379,45 @@ def identify_signs(img: np.ndarray) -> np.ndarray:
              [[x, y, 'stop'],
               [x, y, 'construction']]
     """
-    raise NotImplemented
+    # Copy the image
+    img_cp = img.copy()
+
+    # Initialize an empty list to store the detected signs
+    found_signs = []
+
+    # Call sign detection functions
+    x, y, sign_name = identify_construction(img_cp)
+    print(f"Sign detected at ({x}, {y}) with name: {sign_name}")
+    if sign_name != 'None':
+        found_signs.append([x, y, sign_name])
+
+    # Call sign detection functions
+    x, y, sign_name = identify_stop_sign(img_cp)
+    if sign_name != 'None':
+        found_signs.append([x, y, sign_name])
+
+    # Call sign detection functions
+    x, y, sign_name = identify_yield(img_cp)
+    if sign_name != 'None':
+        found_signs.append([x, y, sign_name])
+
+    # Call sign detection functions
+    x, y, sign_name = identify_rr_crossing(img_cp)
+    if sign_name != 'None':
+        found_signs.append([x, y, sign_name])
+
+    # Call sign detection functions
+    x, y, sign_name = identify_services(img_cp)
+    if sign_name != 'None':
+        found_signs.append([x, y, sign_name])
+
+    # Call sign detection functions
+    x, y, sign_name = identify_warning(img_cp)
+    if sign_name != 'None':
+        found_signs.append([x, y, sign_name])
+
+    # Convert the list of detected signs to a numpy array and return
+    return found_signs
 
 
 def identify_signs_noisy(img: np.ndarray) -> np.ndarray:

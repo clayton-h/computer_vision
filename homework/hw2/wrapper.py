@@ -22,7 +22,7 @@ Then do the normal edge detection, HoughLinesP/HoughCircles.
 def main() -> None:
     part1()
     part2()
-    # part3()
+    part3()
     # part4()
     # part5()
 
