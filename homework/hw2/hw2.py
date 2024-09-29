@@ -312,7 +312,7 @@ def identify_rr_crossing(img: np.ndarray) -> tuple:
     lower_yellow = np.array([20, 100, 100])
     upper_yellow = np.array([30, 255, 255])
 
-    # Mask the yellow regions
+    # Define the color range for detecting yellow
     mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
 
     # Apply the mask to the image
@@ -345,14 +345,21 @@ def identify_services(img: np.ndarray) -> tuple:
     # Copy the image
     img_cp = img.copy()
 
+    # Convert the image to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
-    # Define the color range for detecting white
-    lower_white = np.array([0, 0, 200])
-    upper_white = np.array([180, 20, 255])
+    # Define the color range for detecting blue
+    lower_blue = np.array([100, 150, 70])
+    upper_blue = np.array([130, 255, 255])
 
-    # Define the color range for detecting white
-    mask = cv2.inRange(hsv, lower_white, upper_white)
+    # Define the color range for detecting white (for the border)
+    lower_white = np.array([0, 0, 200])
+    upper_white = np.array([180, 30, 255])
+
+    # Define the color range for detecting blue and white
+    mask_blue = cv2.inRange(hsv, lower_blue, upper_blue)
+    mask_white = cv2.inRange(hsv, lower_white, upper_white)
+    mask = cv2.bitwise_or(mask_blue, mask_white)
 
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
@@ -371,7 +378,7 @@ def identify_services(img: np.ndarray) -> tuple:
         avg_x = np.mean(x).astype(int)
         avg_y = np.mean(y).astype(int)
 
-        return avg_x, avg_y, 'rr_crossing'
+        return avg_x, avg_y, 'services'
 
     return 0, 0, 'None'
 
