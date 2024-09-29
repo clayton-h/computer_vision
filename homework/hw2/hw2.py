@@ -224,7 +224,7 @@ def identify_construction(img: np.ndarray) -> tuple:
 
     # Define the color range for detecting orange
     lower_orange = np.array([10, 100, 100])
-    upper_orange = np.array([25, 255, 255])
+    upper_orange = np.array([30, 255, 255])
 
     # Create a mask for the orange color
     mask = cv2.inRange(hsv, lower_orange, upper_orange)
@@ -267,8 +267,8 @@ def identify_warning(img: np.ndarray) -> tuple:
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
     # Define the color range for detecting yellow
-    lower_yellow = np.array([20, 100, 100])
-    upper_yellow = np.array([30, 255, 255])
+    lower_yellow = np.array([10, 100, 100])
+    upper_yellow = np.array([60, 255, 255])
 
     # Define the color range for detecting yellow
     mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
