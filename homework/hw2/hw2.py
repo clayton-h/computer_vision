@@ -292,7 +292,7 @@ def identify_warning(img: np.ndarray) -> tuple:
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
     # Define the color range for detecting yellow
-    lower_yellow = np.array([22, 100, 100])
+    lower_yellow = np.array([20, 100, 100])
     upper_yellow = np.array([30, 255, 255])
 
     # Define the color range for detecting yellow
