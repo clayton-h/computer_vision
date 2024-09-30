@@ -78,7 +78,7 @@ def part3() -> None:
         img = cv2.imread(img_in)
         img_out = np.copy(img)
         found_signs = identify_signs(img)
-        print(found_signs)
+        # print(found_signs)
         if found_signs:
             for sign in found_signs:
                 x = sign[0]

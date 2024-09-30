@@ -216,10 +216,6 @@ def identify_yield(img: np.ndarray) -> tuple:
 
     contours = sign_contours(masked_img)
 
-    # cv2.imshow('Detected Shapes', masked_img)
-    # cv2.waitKey(0)  # Wait for a key press
-    # cv2.destroyAllWindows()  # Close the window
-
     if contours is None:
         return 0, 0, 'None'
 
@@ -296,8 +292,8 @@ def identify_warning(img: np.ndarray) -> tuple:
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
     # Define the color range for detecting yellow
-    lower_yellow = np.array([10, 100, 100])
-    upper_yellow = np.array([60, 255, 255])
+    lower_yellow = np.array([20, 100, 100])
+    upper_yellow = np.array([30, 255, 255])
 
     # Define the color range for detecting yellow
     mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
