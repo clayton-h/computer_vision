@@ -249,7 +249,7 @@ def identify_construction(img: np.ndarray) -> tuple:
 
     # Define the color range for detecting orange
     lower_orange = np.array([10, 100, 100])
-    upper_orange = np.array([30, 255, 255])
+    upper_orange = np.array([25, 255, 255])
 
     # Create a mask for the orange color
     mask = cv2.inRange(hsv, lower_orange, upper_orange)
