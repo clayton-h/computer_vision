@@ -51,6 +51,30 @@ def sign_circle(img: np.ndarray) -> np.ndarray:
     return circles
 
 
+def sign_contours(img: np.ndarray) -> np.ndarray:
+    """
+    This function takes in the image as a numpy array and returns a numpy array of contours.
+    :param img: Image as numpy array
+    :return: Numpy array of contours.
+    """
+    # Copy the image
+    img_cp = img.copy()
+
+    # Detect edges and lines
+    lines = sign_lines(img_cp)
+
+    mask = np.zeros_like(img_cp[:, :, 0])
+
+    if lines is not None:
+        for line in lines:
+            x1, y1, x2, y2 = line[0]
+            cv2.line(mask, (x1, y1), (x2, y2), 255, 2)
+
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    return contours
+
+
 def sign_axis(lines: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """
     This function takes in a numpy array of lines and returns a tuple of np.ndarray and np.ndarray.
@@ -178,9 +202,9 @@ def identify_yield(img: np.ndarray) -> tuple:
 
     # Lower red hue (0-10 degrees)
     lower_red1 = np.array([0, 100, 100])
-    upper_red1 = np.array([10, 200, 200])
+    upper_red1 = np.array([10, 255, 255])
     lower_red2 = np.array([170, 100, 100])
-    upper_red2 = np.array([180, 200, 200])
+    upper_red2 = np.array([180, 255, 255])
 
     # Define the color range for detecting red
     mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
@@ -190,21 +214,26 @@ def identify_yield(img: np.ndarray) -> tuple:
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
 
-    # Detect sign lines from the masked image
-    lines = sign_lines(masked_img)
+    contours = sign_contours(masked_img)
 
-    if lines is None:
+    # cv2.imshow('Detected Shapes', masked_img)
+    # cv2.waitKey(0)  # Wait for a key press
+    # cv2.destroyAllWindows()  # Close the window
+
+    if contours is None:
         return 0, 0, 'None'
 
-    # Get x and y coordinates from detected lines
-    x, y = sign_axis(lines)
+    for contour in contours:
+        # Approximate the contour shape
+        epsilon = 0.04 * cv2.arcLength(contour, True)
+        approx = cv2.approxPolyDP(contour, epsilon, True)
 
-    # Calculate the average position
-    if len(x) > 0 and len(y) > 0:
-        avg_x = np.mean(x).astype(int)
-        avg_y = np.mean(y).astype(int)
+        # A triangle has 3 vertices
+        if len(approx) == 3:
+            # Calculate the bounding box
+            x, y, w, h = cv2.boundingRect(approx)
 
-        return avg_x, avg_y, 'yield'
+            return x + w // 2, y + h // 2, 'yield'
 
     return 0, 0, 'None'
 
