@@ -170,41 +170,41 @@ def identify_yield(img: np.ndarray) -> tuple:
     :return: tuple with x, y, and sign name
              (x, y, 'yield')
     """
-    # # Copy the image
-    # img_cp = img.copy()
-    #
-    # # Convert the image to HSV
-    # hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
-    #
-    # # Lower red hue (0-10 degrees)
-    # lower_red1 = np.array([0, 100, 100])
-    # upper_red1 = np.array([10, 255, 255])
-    # lower_red2 = np.array([170, 100, 100])
-    # upper_red2 = np.array([180, 255, 255])
-    #
-    # # Define the color range for detecting red
-    # mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
-    # mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
-    # mask = cv2.bitwise_or(mask1, mask2)
-    #
-    # # Apply the mask to the image
-    # masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
-    #
-    # # Detect sign lines from the masked image
-    # lines = sign_lines(masked_img)
-    #
-    # if lines is None:
-    #     return 0, 0, 'None'
-    #
-    # # Get x and y coordinates from detected lines
-    # x, y = sign_axis(lines)
-    #
-    # # Calculate the average position
-    # if len(x) > 0 and len(y) > 0:
-    #     avg_x = np.mean(x).astype(int)
-    #     avg_y = np.mean(y).astype(int)
-    #
-    #     return avg_x, avg_y, 'yield'
+    # Copy the image
+    img_cp = img.copy()
+
+    # Convert the image to HSV
+    hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
+
+    # Lower red hue (0-10 degrees)
+    lower_red1 = np.array([0, 100, 100])
+    upper_red1 = np.array([10, 200, 200])
+    lower_red2 = np.array([170, 100, 100])
+    upper_red2 = np.array([180, 200, 200])
+
+    # Define the color range for detecting red
+    mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
+    mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
+    mask = cv2.bitwise_or(mask1, mask2)
+
+    # Apply the mask to the image
+    masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
+
+    # Detect sign lines from the masked image
+    lines = sign_lines(masked_img)
+
+    if lines is None:
+        return 0, 0, 'None'
+
+    # Get x and y coordinates from detected lines
+    x, y = sign_axis(lines)
+
+    # Calculate the average position
+    if len(x) > 0 and len(y) > 0:
+        avg_x = np.mean(x).astype(int)
+        avg_y = np.mean(y).astype(int)
+
+        return avg_x, avg_y, 'yield'
 
     return 0, 0, 'None'
 
@@ -349,17 +349,17 @@ def identify_services(img: np.ndarray) -> tuple:
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
     # Define the color range for detecting blue
-    lower_blue = np.array([230, 200, 250])
-    upper_blue = np.array([245, 255, 255])
+    lower_blue = np.array([100, 150, 100])
+    upper_blue = np.array([130, 255, 255])
 
-    # Define the color range for detecting white (for the border)
-    lower_white = np.array([0, 0, 200])
-    upper_white = np.array([180, 30, 255])
+    # # Define the color range for detecting white (for the border)
+    # lower_white = np.array([0, 0, 200])
+    # upper_white = np.array([180, 30, 255])
 
     # Define the color range for detecting blue and white
-    mask_blue= cv2.inRange(hsv, lower_blue, upper_blue)
-    mask_white = cv2.inRange(hsv, lower_white, upper_white)
-    mask = cv2.bitwise_or(mask_blue, mask_white)
+    mask= cv2.inRange(hsv, lower_blue, upper_blue)
+    # mask_white = cv2.inRange(hsv, lower_white, upper_white)
+    # mask = cv2.bitwise_or(mask_blue, mask_white)
 
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
