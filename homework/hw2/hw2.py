@@ -51,6 +51,18 @@ def sign_circle(img: np.ndarray) -> np.ndarray:
     return circles
 
 
+def show_image(title: str, img: np.ndarray, wait: int = 0):
+    """
+    Display an image in a window and wait for a key press to continue.
+    :param title: The title of the window.
+    :param img: The image to display.
+    :param wait: Time to wait for a key press (0 means wait indefinitely).
+    """
+    cv2.imshow(title, img)
+    cv2.waitKey(wait)  # Wait indefinitely by default
+    cv2.destroyAllWindows()
+
+
 def sign_contours(img: np.ndarray) -> np.ndarray:
     """
     This function takes in the image as a numpy array and returns a numpy array of contours.
@@ -297,6 +309,8 @@ def identify_warning(img: np.ndarray) -> tuple:
 
     # Define the color range for detecting yellow
     mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
+
+    # show_image("Yellow Mask", mask)
 
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
