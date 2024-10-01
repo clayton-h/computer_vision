@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from numpy.core.defchararray import lower
 
 
 def sign_lines(img: np.ndarray) -> np.ndarray:
@@ -18,8 +19,8 @@ def sign_lines(img: np.ndarray) -> np.ndarray:
     img_blur = cv2.GaussianBlur(img_gray, (0, 0), 1.5)
 
     # Edge and line detection
-    img_edge = cv2.Canny(img_blur, 50, 150)
-    lines = cv2.HoughLinesP(img_edge, 1, np.pi / 180, threshold=10, minLineLength=50, maxLineGap=15)
+    edges = cv2.Canny(img_blur, 50, 150)
+    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=10, minLineLength=50, maxLineGap=15)
 
     return lines
 
@@ -212,12 +213,20 @@ def identify_yield(img: np.ndarray) -> tuple:
     # Convert the image to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
-    #  Define the color range for detecting white
+    #  Define the color range for detecting white and red
     lower_white = np.array([0, 0, 200])
     upper_white = np.array([180, 55, 255])
+    lower_red1 = np.array([0, 100, 100])
+    upper_red1 = np.array([10, 255, 255])
+    lower_red2 = np.array([170, 100, 100])
+    upper_red2 = np.array([180, 255, 255])
 
     # Define the color range for detecting red
-    mask = cv2.inRange(hsv, lower_white, upper_white)
+    white_mask = cv2.inRange(hsv, lower_white, upper_white)
+    red_mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
+    red_mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
+    red_mask = cv2.bitwise_or(red_mask1, red_mask2)
+    mask = cv2.inRange(hsv, white_mask, red_mask)
 
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
@@ -232,12 +241,10 @@ def identify_yield(img: np.ndarray) -> tuple:
         epsilon = 0.04 * cv2.arcLength(contour, True)
         approx = cv2.approxPolyDP(contour, epsilon, True)
 
-        # A triangle has 3 vertices
-        if len(approx) == 3:
-            # Calculate the bounding box
-            x, y, w, h = cv2.boundingRect(approx)
+        # Calculate the bounding box
+        x, y, w, h = cv2.boundingRect(approx)
 
-            return x + w // 2, y + h // 2, 'yield'
+        return x + w // 2, y + h // 2, 'yield'
 
     return 0, 0, 'None'
 
