@@ -193,7 +193,7 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
             if 20 <= r <= 50:
                 continue
             # Check for sign characteristics, e.g., circle size range
-            if 20 <= r <= 100:
+            elif 20 <= r <= 100:
                 # Return the center coordinates of the detected circle
                 return x, y, 'stop'
 
