@@ -184,6 +184,8 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
     # Detect circles
     circles = sign_circle(masked_img)
 
+    # show_image("", masked_img)
+
     if circles is not None:
         # Convert circles to integer values
         circles = np.round(circles[0, :]).astype("int")
@@ -305,7 +307,7 @@ def identify_warning(img: np.ndarray) -> tuple:
     # Define the color range for detecting yellow
     mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
 
-    # show_image("Yellow Mask", mask)
+    # show_image("", mask)
 
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
