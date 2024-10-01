@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from numpy.ma.core import masked
 
 
 def sign_lines(img: np.ndarray) -> np.ndarray:
@@ -172,7 +173,7 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
     lower_red2 = np.array([170, 120, 70])
     upper_red2 = np.array([180, 255, 255])
 
-    # Define the color range for detecting orange
+    # Define the color range for detecting red
     mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
     mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
     mask = cv2.bitwise_or(mask1, mask2)
@@ -180,21 +181,21 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
 
-    # Detect sign lines from the masked image
-    lines = sign_lines(masked_img)
+    # Detect circles
+    circles = sign_circle(masked_img)
 
-    if lines is None:
-        return 0, 0, 'None'
+    if circles is not None:
+        # Convert circles to integer values
+        circles = np.round(circles[0, :]).astype("int")
 
-    # Get x and y coordinates from detected lines
-    x, y = sign_axis(lines)
-
-    # Calculate the average position
-    if len(x) > 0 and len(y) > 0:
-        avg_x = np.mean(x).astype(int)
-        avg_y = np.mean(y).astype(int)
-
-        return avg_x, avg_y, 'stop'
+        # Get the (x, y) coordinates and radius of the first detected circle
+        for (x, y, r) in circles:
+            if 20 <= r <= 50:
+                continue
+            # Check for sign characteristics, e.g., circle size range
+            if 20 <= r <= 100:
+                # Return the center coordinates of the detected circle
+                return x, y, 'stop'
 
     return 0, 0, 'None'
 
@@ -206,36 +207,36 @@ def identify_yield(img: np.ndarray) -> tuple:
     :return: tuple with x, y, and sign name
              (x, y, 'yield')
     """
-    # Copy the image
-    img_cp = img.copy()
-
-    # Convert the image to HSV
-    hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
-
-    #  Define the color range for detecting white
-    lower_white = np.array([0, 0, 200])
-    upper_white = np.array([180, 55, 255])
-
-    # Define the color range for detecting white
-    mask = cv2.inRange(hsv, lower_white, upper_white)
-
-    # Apply the mask to the image
-    masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
-
-    contours = sign_contours(masked_img)
-
-    if contours is None:
-        return 0, 0, 'None'
-
-    for contour in contours:
-        # Approximate the contour shape
-        epsilon = 0.04 * cv2.arcLength(contour, True)
-        approx = cv2.approxPolyDP(contour, epsilon, True)
-
-        # Calculate the bounding box
-        x, y, w, h = cv2.boundingRect(approx)
-
-        return x + w // 2, y + h // 2, 'yield'
+    # # Copy the image
+    # img_cp = img.copy()
+    #
+    # # Convert the image to HSV
+    # hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
+    #
+    # #  Define the color range for detecting white
+    # lower_white = np.array([0, 0, 200])
+    # upper_white = np.array([180, 55, 255])
+    #
+    # # Define the color range for detecting white
+    # mask = cv2.inRange(hsv, lower_white, upper_white)
+    #
+    # # Apply the mask to the image
+    # masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
+    #
+    # contours = sign_contours(masked_img)
+    #
+    # if contours is None:
+    #     return 0, 0, 'None'
+    #
+    # for contour in contours:
+    #     # Approximate the contour shape
+    #     epsilon = 0.04 * cv2.arcLength(contour, True)
+    #     approx = cv2.approxPolyDP(contour, epsilon, True)
+    #
+    #     # Calculate the bounding box
+    #     x, y, w, h = cv2.boundingRect(approx)
+    #
+    #     return x + w // 2, y + h // 2, 'yield'
 
     return 0, 0, 'None'
 
