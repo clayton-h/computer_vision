@@ -226,7 +226,7 @@ def identify_yield(img: np.ndarray) -> tuple:
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
 
-    show_image("", masked_img)
+    # show_image("", masked_img)
 
     # contours = sign_contours(masked_img)
     #
@@ -311,10 +311,10 @@ def identify_warning(img: np.ndarray) -> tuple:
     # Define the color range for detecting yellow
     mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
 
-    # show_image("", mask)
-
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
+
+    # show_image("", masked_img)
 
     # Detect sign lines from the masked image
     lines = sign_lines(masked_img)
@@ -392,17 +392,13 @@ def identify_services(img: np.ndarray) -> tuple:
     lower_blue = np.array([100, 150, 100])
     upper_blue = np.array([130, 255, 255])
 
-    # # Define the color range for detecting white (for the border)
-    # lower_white = np.array([0, 0, 200])
-    # upper_white = np.array([180, 30, 255])
-
     # Define the color range for detecting blue and white
-    mask= cv2.inRange(hsv, lower_blue, upper_blue)
-    # mask_white = cv2.inRange(hsv, lower_white, upper_white)
-    # mask = cv2.bitwise_or(mask_blue, mask_white)
+    mask = cv2.inRange(hsv, lower_blue, upper_blue)
 
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
+
+    # show_image("", masked_img)
 
     # Detect sign lines from the masked image
     lines = sign_lines(masked_img)
