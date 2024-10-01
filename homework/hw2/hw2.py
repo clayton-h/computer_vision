@@ -192,10 +192,11 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
 
         # Get the (x, y) coordinates and radius of the first detected circle
         for (x, y, r) in circles:
+            # Exclude stop lights
             if 20 <= r <= 50:
                 continue
             # Check for sign characteristics, e.g., circle size range
-            elif 20 <= r <= 100:
+            elif 40 <= r <= 100:
                 # Return the center coordinates of the detected circle
                 return x, y, 'stop'
 
@@ -209,36 +210,37 @@ def identify_yield(img: np.ndarray) -> tuple:
     :return: tuple with x, y, and sign name
              (x, y, 'yield')
     """
-    # # Copy the image
-    # img_cp = img.copy()
-    #
-    # # Convert the image to HSV
-    # hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
-    #
-    # #  Define the color range for detecting white
-    # lower_white = np.array([0, 0, 200])
-    # upper_white = np.array([180, 55, 255])
-    #
-    # # Define the color range for detecting white
-    # mask = cv2.inRange(hsv, lower_white, upper_white)
-    #
-    # # Apply the mask to the image
-    # masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
-    #
-    # contours = sign_contours(masked_img)
-    #
-    # if contours is None:
-    #     return 0, 0, 'None'
-    #
-    # for contour in contours:
-    #     # Approximate the contour shape
-    #     epsilon = 0.04 * cv2.arcLength(contour, True)
-    #     approx = cv2.approxPolyDP(contour, epsilon, True)
-    #
-    #     # Calculate the bounding box
-    #     x, y, w, h = cv2.boundingRect(approx)
-    #
-    #     return x + w // 2, y + h // 2, 'yield'
+    # Copy the image
+    img_cp = img.copy()
+
+    # Convert the image to HSV
+    hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
+
+    #  Define the color range for detecting white
+    lower_white = np.array([0, 0, 215])
+    upper_white = np.array([180, 40, 255])
+
+    # Define the color range for detecting white
+    mask = cv2.inRange(hsv, lower_white, upper_white)
+
+    # Apply the mask to the image
+    masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
+
+    contours = sign_contours(masked_img)
+
+    if contours is None:
+        return 0, 0, 'None'
+
+    for contour in contours:
+        # Approximate the contour shape
+        epsilon = 0.04 * cv2.arcLength(contour, True)
+        approx = cv2.approxPolyDP(contour, epsilon, True)
+
+        if len(approx) == 3:
+            # Calculate the bounding box
+            x, y, w, h = cv2.boundingRect(approx)
+
+            return x + w // 2, y + h // 2, 'yield'
 
     return 0, 0, 'None'
 
