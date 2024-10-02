@@ -52,42 +52,6 @@ def sign_circle(img: np.ndarray) -> np.ndarray:
     return circles
 
 
-def show_image(title: str, img: np.ndarray, wait: int = 0):
-    """
-    Display an image in a window and wait for a key press to continue.
-    :param title: The title of the window.
-    :param img: The image to display.
-    :param wait: Time to wait for a key press (0 means wait indefinitely).
-    """
-    cv2.imshow(title, img)
-    cv2.waitKey(wait)  # Wait indefinitely by default
-    cv2.destroyAllWindows()
-
-
-# def sign_contours(img: np.ndarray) -> np.ndarray:
-#     """
-#     This function takes in the image as a numpy array and returns a numpy array of contours.
-#     :param img: Image as numpy array
-#     :return: Numpy array of contours.
-#     """
-#     # Copy the image
-#     img_cp = img.copy()
-#
-#     # Detect edges and lines
-#     lines = sign_lines(img_cp)
-#
-#     mask = np.zeros_like(img_cp[:, :, 0])
-#
-#     if lines is not None:
-#         for line in lines:
-#             x1, y1, x2, y2 = line[0]
-#             cv2.line(mask, (x1, y1), (x2, y2), 255, 2)
-#
-#     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-#
-#     return contours
-
-
 def sign_axis(lines: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """
     This function takes in a numpy array of lines and returns a tuple of np.ndarray and np.ndarray.
@@ -112,6 +76,44 @@ def sign_axis(lines: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
 
     # Convert lists to numpy arrays
     return np.array(x_coords, dtype=np.int32), np.array(y_coords, dtype=np.int32)
+
+
+def show_image(title: str, img: np.ndarray, wait: int = 0):
+    """
+    Display an image in a window and wait for a key press to continue.
+    :param title: The title of the window.
+    :param img: The image to display.
+    :param wait: Time to wait for a key press (0 means wait indefinitely).
+    """
+    cv2.imshow(title, img)
+    cv2.waitKey(wait)  # Wait indefinitely by default
+    cv2.destroyAllWindows()
+
+
+def triangle_detection(angles: list, tolerance: float = 15.0) -> bool:
+    """
+    Checks if the given list of angles contains the pattern of angles that form a triangle.
+    Specifically looks for angles close to 60° and 120°.
+
+    :param angles: List of angles to check
+    :param tolerance: Allowed margin of error for detecting angles
+    :return: True if a triangle is detected, False otherwise
+    """
+    # Angles of an equilateral or isosceles triangle
+    triangle_angles = [60, 120]  # Expected angles in degrees
+
+    # Count how many angles match our triangle pattern
+    match_count = 0
+
+    for angle in angles:
+        for target_angle in triangle_angles:
+            # Check if the absolute difference between the detected angle and the target angle is within the tolerance
+            if abs(abs(angle) - target_angle) < tolerance:
+                match_count += 1
+                break
+
+    # We expect at least 3 matching angles to confirm a triangular shape
+    return match_count >= 3
 
 
 def identify_traffic_light(img: np.ndarray) -> tuple:
@@ -216,33 +218,41 @@ def identify_yield(img: np.ndarray) -> tuple:
     # Convert the image to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
-    #  Define the color range for detecting white
-    lower_white = np.array([0, 0, 215])
-    upper_white = np.array([180, 40, 255])
+    # Define the color range for detecting red
+    lower_red = np.array([0, 50, 50])
+    upper_red = np.array([10, 255, 255])  # For red (low hue range)
+    mask_red1 = cv2.inRange(hsv, lower_red, upper_red)
 
-    # Define the color range for detecting white
-    mask = cv2.inRange(hsv, lower_white, upper_white)
+    # Second range for red in HSV space (as red wraps around 0 and 180)
+    lower_red2 = np.array([170, 50, 50])
+    upper_red2 = np.array([180, 255, 255])
+    mask_red2 = cv2.inRange(hsv, lower_red2, upper_red2)
+
+    # Combine the masks for red detection
+    mask = mask_red1 | mask_red2
 
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
 
-    # show_image("", masked_img)
+    # Detect sign lines
+    lines = sign_lines(masked_img)
 
-    # contours = sign_contours(masked_img)
-    #
-    # if contours is None:
-    #     return 0, 0, 'None'
-    #
-    # for contour in contours:
-    #     # Approximate the contour shape
-    #     epsilon = 0.04 * cv2.arcLength(contour, True)
-    #     approx = cv2.approxPolyDP(contour, epsilon, True)
-    #
-    #     if len(approx) == 3:
-    #         # Calculate the bounding box
-    #         x, y, w, h = cv2.boundingRect(approx)
-    #
-    #         return x + w // 2, y + h // 2, 'yield'
+    if lines is not None:
+        # Initialize a list to store the angles of detected lines
+        angles = []
+
+        # Iterate through detected lines
+        for line in lines:
+            x1, y1, x2, y2 = line[0]
+
+            # Calculate the angle of the line with respect to the horizontal axis
+            angle = np.degrees(np.arctan2(y2 - y1, x2 - x1))
+            angles.append(angle)
+
+        # if triangle_detection(angles):
+        #     # For simplicity, return the center of the image as the sign's location
+        #     h, w = img.shape[:2]
+        #     return w // 2, h // 2, 'yield'
 
     return 0, 0, 'None'
 
@@ -273,19 +283,17 @@ def identify_construction(img: np.ndarray) -> tuple:
     # Detect sign lines
     lines = sign_lines(masked_img)
 
-    if lines is None:
-        return 0, 0, 'None'
+    if lines is not None:
+        # Get x and y coordinates from detected lines
+        x, y = sign_axis(lines)
 
-    # Get x and y coordinates from detected lines
-    x, y = sign_axis(lines)
+        # Calculate the average position
+        if len(x) > 0 and len(y) > 0:
+            avg_x = np.mean(x).astype(int)
+            avg_y = np.mean(y).astype(int)
 
-    # Calculate the average position
-    if len(x) > 0 and len(y) > 0:
-        avg_x = np.mean(x).astype(int)
-        avg_y = np.mean(y).astype(int)
-
-        # Return the detected sign center coordinates and label
-        return avg_x, avg_y, 'construction'
+            # Return the detected sign center coordinates and label
+            return avg_x, avg_y, 'construction'
 
     return 0, 0, 'None'
 
@@ -319,18 +327,16 @@ def identify_warning(img: np.ndarray) -> tuple:
     # Detect sign lines from the masked image
     lines = sign_lines(masked_img)
 
-    if lines is None:
-        return 0, 0, 'None'
+    if lines is not None:
+        # Get x and y coordinates from detected lines
+        x, y = sign_axis(lines)
 
-    # Get x and y coordinates from detected lines
-    x, y = sign_axis(lines)
+        # Calculate the average position
+        if len(x) > 0 and len(y) > 0:
+            avg_x = np.mean(x).astype(int)
+            avg_y = np.mean(y).astype(int)
 
-    # Calculate the average position
-    if len(x) > 0 and len(y) > 0:
-        avg_x = np.mean(x).astype(int)
-        avg_y = np.mean(y).astype(int)
-
-        return avg_x, avg_y, 'warning'
+            return avg_x, avg_y, 'warning'
 
     return 0, 0, 'None'
 
@@ -403,18 +409,16 @@ def identify_services(img: np.ndarray) -> tuple:
     # Detect sign lines from the masked image
     lines = sign_lines(masked_img)
 
-    if lines is None:
-        return 0, 0, 'None'
+    if lines is not None:
+        # Get x and y coordinates from detected lines
+        x, y = sign_axis(lines)
 
-    # Get x and y coordinates from detected lines
-    x, y = sign_axis(lines)
+        # Calculate the average position
+        if len(x) > 0 and len(y) > 0:
+            avg_x = np.mean(x).astype(int)
+            avg_y = np.mean(y).astype(int)
 
-    # Calculate the average position
-    if len(x) > 0 and len(y) > 0:
-        avg_x = np.mean(x).astype(int)
-        avg_y = np.mean(y).astype(int)
-
-        return avg_x, avg_y, 'services'
+            return avg_x, avg_y, 'services'
 
     return 0, 0, 'None'
 
