@@ -5,6 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7e644d2d-6863-4760-93e0-dd04bde72397" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/homework/hw2/all_signs_blank_background_noise_txt.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/homework/hw2/all_signs_blank_background_noise_txt.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/homework/hw2/all_signs_noise_txt.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/homework/hw2/all_signs_noise_txt.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/homework/hw2/all_signs_txt.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/homework/hw2/all_signs_txt.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/homework/hw2/construction_warning_rr_crossing_background02_txt.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/homework/hw2/construction_warning_rr_crossing_background02_txt.jpg" afterDir="false" />
@@ -44,7 +46,7 @@
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;C:/Users/ClayT/PycharmProjects/computerVision/lecture&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;terminal&quot;
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.updates&quot;
   }
 }</component>
   <component name="RecentsManager">
