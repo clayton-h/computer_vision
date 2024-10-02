@@ -250,9 +250,19 @@ def identify_yield(img: np.ndarray) -> tuple:
             angles.append(angle)
 
         # if triangle_detection(angles):
-        #     # For simplicity, return the center of the image as the sign's location
-        #     h, w = img.shape[:2]
-        #     return w // 2, h // 2, 'yield'
+        #     # Compute the centroid of the detected lines
+        #     x_coords = []
+        #     y_coords = []
+        #     for line in lines:
+        #         x1, y1, x2, y2 = line[0]
+        #         x_coords.extend([x1, x2])
+        #         y_coords.extend([y1, y2])
+        #
+        #     # Compute the centroid as the average of the x and y coordinates
+        #     centroid_x = sum(x_coords) // len(x_coords)
+        #     centroid_y = sum(y_coords) // len(y_coords)
+        #
+        #     return centroid_x, centroid_y, 'yield'
 
     return 0, 0, 'None'
 
