@@ -20,7 +20,7 @@ def sign_lines(img: np.ndarray) -> np.ndarray:
 
     # Edge and line detection
     edges = cv2.Canny(img_blur, 50, 150)
-    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=10, minLineLength=50, maxLineGap=15)
+    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=20, minLineLength=50, maxLineGap=15)
 
     return lines
 
@@ -249,20 +249,20 @@ def identify_yield(img: np.ndarray) -> tuple:
             angle = np.degrees(np.arctan2(y2 - y1, x2 - x1))
             angles.append(angle)
 
-        # if triangle_detection(angles):
-        #     # Compute the centroid of the detected lines
-        #     x_coords = []
-        #     y_coords = []
-        #     for line in lines:
-        #         x1, y1, x2, y2 = line[0]
-        #         x_coords.extend([x1, x2])
-        #         y_coords.extend([y1, y2])
-        #
-        #     # Compute the centroid as the average of the x and y coordinates
-        #     centroid_x = sum(x_coords) // len(x_coords)
-        #     centroid_y = sum(y_coords) // len(y_coords)
-        #
-        #     return centroid_x, centroid_y, 'yield'
+        if triangle_detection(angles):
+            # Compute the centroid of the detected lines
+            x_coords = []
+            y_coords = []
+            for line in lines:
+                x1, y1, x2, y2 = line[0]
+                x_coords.extend([x1, x2])
+                y_coords.extend([y1, y2])
+
+            # Compute the centroid as the average of the x and y coordinates
+            centroid_x = sum(x_coords) // len(x_coords)
+            centroid_y = sum(y_coords) // len(y_coords)
+
+            return centroid_x, centroid_y, 'yield'
 
     return 0, 0, 'None'
 
