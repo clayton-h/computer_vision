@@ -217,13 +217,13 @@ def identify_yield(img: np.ndarray) -> tuple:
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
     # Define the color range for detecting red
-    lower_red = np.array([0, 50, 50])
-    upper_red = np.array([10, 255, 255])
+    lower_red1 = np.array([0, 50, 50])
+    upper_red1 = np.array([10, 255, 255])
     lower_red2 = np.array([170, 50, 50])
     upper_red2 = np.array([180, 255, 255])
 
     # Create a mask for the red color
-    mask_red1 = cv2.inRange(hsv, lower_red, upper_red)
+    mask_red1 = cv2.inRange(hsv, lower_red1, upper_red1)
     mask_red2 = cv2.inRange(hsv, lower_red2, upper_red2)
     mask = mask_red1 | mask_red2
 
@@ -236,6 +236,7 @@ def identify_yield(img: np.ndarray) -> tuple:
     for shape, contour in shapes:
         if shape == 'triangle':
             # Get the coordinates of the triangle's vertices
+            # and determine the triangle's center
             M = cv2.moments(contour)
             if M["m00"] != 0: # To avoid division by zero
                 cX = int(M["m10"] / M["m00"])
