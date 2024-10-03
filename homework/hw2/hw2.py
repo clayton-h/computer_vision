@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from fontTools.misc.bezierTools import epsilon
 from numpy.ma.core import masked
 
 
@@ -20,7 +21,7 @@ def sign_lines(img: np.ndarray) -> np.ndarray:
 
     # Edge and line detection
     edges = cv2.Canny(img_blur, 50, 150)
-    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=20, minLineLength=50, maxLineGap=15)
+    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=20, minLineLength=50, maxLineGap=15) # minLineLength=50
 
     return lines
 
@@ -90,30 +91,27 @@ def show_image(title: str, img: np.ndarray, wait: int = 0):
     cv2.destroyAllWindows()
 
 
-def triangle_detection(angles: list, tolerance: float = 15.0) -> bool:
+def detect_shapes(img: np.ndarray) -> list:
     """
-    Checks if the given list of angles contains the pattern of angles that form a triangle.
-    Specifically looks for angles close to 60° and 120°.
-
-    :param angles: List of angles to check
-    :param tolerance: Allowed margin of error for detecting angles
-    :return: True if a triangle is detected, False otherwise
+    This function takes in the image as a numpy array and returns a list of shapes.
+    :param img: Image as numpy array
+    :return: List of shapes.
     """
-    # Angles of an equilateral or isosceles triangle
-    triangle_angles = [60, 120]  # Expected angles in degrees
+    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    _, thresh = cv2.threshold(img_gray, 127, 255, cv2.THRESH_BINARY)
+    contours, _ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-    # Count how many angles match our triangle pattern
-    match_count = 0
+    shapes = []
+    for contour in contours:
+        epsilon = .02 * cv2.arcLength(contour, True)
+        approx = cv2.approxPolyDP(contour, epsilon, True)
 
-    for angle in angles:
-        for target_angle in triangle_angles:
-            # Check if the absolute difference between the detected angle and the target angle is within the tolerance
-            if abs(abs(angle) - target_angle) < tolerance:
-                match_count += 1
-                break
+        if len(approx) == 3:
+            shapes.append(('triangle', approx))
+        elif len(approx) == 4:
+            shapes.append(('polygon', approx))
 
-    # We expect at least 3 matching angles to confirm a triangular shape
-    return match_count >= 3
+    return shapes
 
 
 def identify_traffic_light(img: np.ndarray) -> tuple:
@@ -175,7 +173,7 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
     lower_red2 = np.array([170, 120, 70])
     upper_red2 = np.array([180, 255, 255])
 
-    # Define the color range for detecting red
+    # Create a mask for the red color
     mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
     mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
     mask = cv2.bitwise_or(mask1, mask2)
@@ -220,49 +218,29 @@ def identify_yield(img: np.ndarray) -> tuple:
 
     # Define the color range for detecting red
     lower_red = np.array([0, 50, 50])
-    upper_red = np.array([10, 255, 255])  # For red (low hue range)
-    mask_red1 = cv2.inRange(hsv, lower_red, upper_red)
-
-    # Second range for red in HSV space (as red wraps around 0 and 180)
+    upper_red = np.array([10, 255, 255])
     lower_red2 = np.array([170, 50, 50])
     upper_red2 = np.array([180, 255, 255])
-    mask_red2 = cv2.inRange(hsv, lower_red2, upper_red2)
 
-    # Combine the masks for red detection
+    # Create a mask for the red color
+    mask_red1 = cv2.inRange(hsv, lower_red, upper_red)
+    mask_red2 = cv2.inRange(hsv, lower_red2, upper_red2)
     mask = mask_red1 | mask_red2
 
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
 
-    # Detect sign lines
-    lines = sign_lines(masked_img)
+    # Detect shape
+    shapes = detect_shapes(masked_img)
 
-    if lines is not None:
-        # Initialize a list to store the angles of detected lines
-        angles = []
-
-        # Iterate through detected lines
-        for line in lines:
-            x1, y1, x2, y2 = line[0]
-
-            # Calculate the angle of the line with respect to the horizontal axis
-            angle = np.degrees(np.arctan2(y2 - y1, x2 - x1))
-            angles.append(angle)
-
-        if triangle_detection(angles):
-            # Compute the centroid of the detected lines
-            x_coords = []
-            y_coords = []
-            for line in lines:
-                x1, y1, x2, y2 = line[0]
-                x_coords.extend([x1, x2])
-                y_coords.extend([y1, y2])
-
-            # Compute the centroid as the average of the x and y coordinates
-            centroid_x = sum(x_coords) // len(x_coords)
-            centroid_y = sum(y_coords) // len(y_coords)
-
-            return centroid_x, centroid_y, 'yield'
+    for shape, contour in shapes:
+        if shape == 'triangle':
+            # Get the coordinates of the triangle's vertices
+            M = cv2.moments(contour)
+            if M["m00"] != 0: # To avoid division by zero
+                cX = int(M["m10"] / M["m00"])
+                cY = int(M["m01"] / M["m00"])
+                return cX, cY, 'yield'
 
     return 0, 0, 'None'
 
