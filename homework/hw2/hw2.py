@@ -377,38 +377,37 @@ def identify_services(img: np.ndarray) -> tuple:
     :return: tuple with x, y, and sign name
              (x, y, 'services')
     """
-    # Copy the image
-    img_cp = img.copy()
+    # Convert the image to HSV color space
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-    # Convert the image to HSV
-    hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
-
-    # Define the color range for detecting blue
-    lower_blue = np.array([75, 195, 155])
-    upper_blue = np.array([125, 255, 255])
-
-    # Define the color range for detecting blue
+    # Define blue color range and create a mask
+    lower_blue = np.array([90, 50, 50])
+    upper_blue = np.array([130, 255, 255])
     mask = cv2.inRange(hsv, lower_blue, upper_blue)
 
-    # Apply the mask to the image
-    masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
+    # Apply Gaussian blur to reduce noise
+    blurred = cv2.GaussianBlur(mask, (5, 5), 0)
 
-    # show_image("", masked_img)
+    # Find contours on the masked image
+    contours, _ = cv2.findContours(blurred, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-    # Detect sign lines from the masked image
-    lines = sign_lines(masked_img)
+    # Loop over contours to find rectangular shapes
+    for contour in contours:
+        # Approximate the contour to a polygon
+        peri = cv2.arcLength(contour, True)
+        approx = cv2.approxPolyDP(contour, 0.04 * peri, True)
 
-    if lines is not None:
-        # Get x and y coordinates from detected lines
-        x, y = sign_axis(lines)
+        # Check if the approximated contour has 4 sides (rectangle)
+        if len(approx) == 4:
+            # Use cv2.boundingRect to get the bounding box of the contour
+            x, y, w, h = cv2.boundingRect(approx)
 
-        # Calculate the average position
-        if len(x) > 0 and len(y) > 0:
-            avg_x = np.mean(x).astype(int)
-            avg_y = np.mean(y).astype(int)
+            # Return the center of the bounding box as the detected sign
+            center_x = x + w // 2
+            center_y = y + h // 2
+            return center_x, center_y, 'services'
 
-            return avg_x, avg_y, 'services'
-
+    # Return 'None' if no service signs are detected
     return 0, 0, 'None'
 
 
