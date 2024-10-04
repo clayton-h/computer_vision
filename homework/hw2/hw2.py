@@ -182,11 +182,6 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
     mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
     mask = cv2.bitwise_or(mask1, mask2)
 
-    # Apply morphological operations to remove noise
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
-
     # Find contours in the mask
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -321,34 +316,36 @@ def identify_warning(img: np.ndarray) -> tuple:
     # Convert the image to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
-    # # Define orange color range
-    # lower_orange = np.array([5, 100, 100])
-    # upper_orange = np.array([20, 255, 255])
     # Define yellow color range
     lower_yellow = np.array([20, 100, 100])
-    upper_yellow = np.array([25, 255, 255])
+    upper_yellow = np.array([30, 255, 255])
 
-    # Define yellow color range
+    # Create a mask for the yellow color
     mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
 
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
 
-    # show_image("", masked_img)
+    # Detect contours from the masked image
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    # Detect sign lines from the masked image
-    lines = sign_lines(masked_img)
+    for contour in contours:
+        # Approximate the contour to a polygon
+        epsilon = 0.02 * cv2.arcLength(contour, True)
+        approx = cv2.approxPolyDP(contour, epsilon, True)
 
-    if lines is not None:
-        # Get x and y coordinates from detected lines
-        x, y = sign_axis(lines)
+        # Check if the shape is a triangle (3 sides) or diamond-like (4 sides)
+        num_sides = len(approx)
+        if num_sides == 3 or (num_sides == 4 and cv2.isContourConvex(approx)):
+            # Get the bounding box to calculate center
+            x, y, w, h = cv2.boundingRect(contour)
+            center_x = x + w // 2
+            center_y = y + h // 2
 
-        # Calculate the average position
-        if len(x) > 0 and len(y) > 0:
-            avg_x = np.mean(x).astype(int)
-            avg_y = np.mean(y).astype(int)
-
-            return avg_x, avg_y, 'warning'
+            # Check area size to filter out small contours
+            area = cv2.contourArea(contour)
+            if area > 500:  # Example threshold for area
+                return center_x, center_y, 'warning'
 
     return 0, 0, 'None'
 
