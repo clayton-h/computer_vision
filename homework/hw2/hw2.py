@@ -167,7 +167,7 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
     # Convert the image to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
-    # Define the color range for detecting red
+    # Define red color range
     lower_red1 = np.array([0, 120, 70])
     upper_red1 = np.array([10, 255, 255])
     lower_red2 = np.array([170, 120, 70])
@@ -216,7 +216,7 @@ def identify_yield(img: np.ndarray) -> tuple:
     # Convert the image to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
-    # Define the color range for detecting red
+    # Define red color range
     lower_red1 = np.array([0, 50, 50])
     upper_red1 = np.array([10, 255, 255])
     lower_red2 = np.array([170, 50, 50])
@@ -259,7 +259,7 @@ def identify_construction(img: np.ndarray) -> tuple:
     # Convert the image to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
-    # Define the color range for detecting orange
+    # Define orange color range
     lower_orange = np.array([5, 100, 100])
     upper_orange = np.array([20, 255, 255])
 
@@ -301,11 +301,11 @@ def identify_warning(img: np.ndarray) -> tuple:
     # Convert the image to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
-    # Define the color range for detecting yellow
+    # Define yellow color range
     lower_yellow = np.array([20, 100, 100])
     upper_yellow = np.array([30, 255, 255])
 
-    # Define the color range for detecting yellow
+    # Define yellow color range
     mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
 
     # Apply the mask to the image
@@ -343,7 +343,7 @@ def identify_rr_crossing(img: np.ndarray) -> tuple:
     # Convert the image to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
-    # Define the color range for detecting yellow
+    # Define yellow color range
     lower_yellow = np.array([20, 100, 100])
     upper_yellow = np.array([30, 255, 255])
 
@@ -377,7 +377,7 @@ def identify_services(img: np.ndarray) -> tuple:
     :return: tuple with x, y, and sign name
              (x, y, 'services')
     """
-    # Convert the image to HSV color space
+    # Convert the image to HSV
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
     # Define blue color range and create a mask
