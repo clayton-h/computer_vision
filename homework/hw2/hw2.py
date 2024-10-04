@@ -224,9 +224,9 @@ def identify_yield(img: np.ndarray) -> tuple:
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
     # Define red color range
-    lower_red1 = np.array([0, 50, 50])
+    lower_red1 = np.array([0, 100, 100])
     upper_red1 = np.array([10, 255, 255])
-    lower_red2 = np.array([170, 50, 50])
+    lower_red2 = np.array([170, 100, 100])
     upper_red2 = np.array([180, 255, 255])
 
     # Create a mask for the red color
@@ -237,18 +237,31 @@ def identify_yield(img: np.ndarray) -> tuple:
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
 
-    # Detect shape
-    shapes = detect_shapes(masked_img)
+    # Convert the masked image to grayscale
+    gray_masked_img = cv2.cvtColor(masked_img, cv2.COLOR_BGR2GRAY)
 
-    for shape, contour in shapes:
-        if shape == 'triangle':
-            # Get the coordinates of the triangle's vertices
-            # and determine the triangle's center
-            M = cv2.moments(contour)
-            if M["m00"] != 0: # To avoid division by zero
-                cX = int(M["m10"] / M["m00"])
-                cY = int(M["m01"] / M["m00"])
-                return cX, cY, 'yield'
+    # Threshold the grayscale image
+    _, thresh = cv2.threshold(gray_masked_img, 1, 255, cv2.THRESH_BINARY)
+
+    # Find contours in the thresholded image
+    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    for contour in contours:
+        # Approximate the contour to a polygon
+        epsilon = 0.02 * cv2.arcLength(contour, True)
+        approx = cv2.approxPolyDP(contour, epsilon, True)
+
+        # Check if the shape is a triangle (3 vertices)
+        if len(approx) == 3:
+            # Get the bounding box to calculate center
+            x, y, w, h = cv2.boundingRect(contour)
+            center_x = x + w // 2
+            center_y = y + h // 2
+
+            # Check area size to filter out small contours
+            area = cv2.contourArea(contour)
+            if area > 500:  # Adjust this threshold based on image resolution
+                return center_x, center_y, 'yield'
 
     return 0, 0, 'None'
 
