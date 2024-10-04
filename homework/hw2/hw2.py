@@ -154,6 +154,10 @@ def identify_traffic_light(img: np.ndarray) -> tuple:
     return 0, 0, 'None'
 
 
+import numpy as np
+import cv2
+
+
 def identify_stop_sign(img: np.ndarray) -> tuple:
     """
     This function takes in the image as a numpy array and returns a tuple of the sign location and name.
@@ -168,9 +172,9 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
     # Define red color range
-    lower_red1 = np.array([0, 120, 70])
+    lower_red1 = np.array([0, 150, 70])
     upper_red1 = np.array([10, 255, 255])
-    lower_red2 = np.array([170, 120, 70])
+    lower_red2 = np.array([170, 150, 70])
     upper_red2 = np.array([180, 255, 255])
 
     # Create a mask for the red color
@@ -178,27 +182,30 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
     mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
     mask = cv2.bitwise_or(mask1, mask2)
 
-    # Apply the mask to the image
-    masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
+    # Apply morphological operations to remove noise
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
 
-    # Detect circles
-    circles = sign_circle(masked_img)
+    # Find contours in the mask
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    # show_image("", masked_img)
+    for contour in contours:
+        # Approximate the contour to a polygon
+        epsilon = 0.02 * cv2.arcLength(contour, True)
+        approx = cv2.approxPolyDP(contour, epsilon, True)
 
-    if circles is not None:
-        # Convert circles to integer values
-        circles = np.round(circles[0, :]).astype("int")
+        # Check if the shape is an octagon (8 sides)
+        if len(approx) == 8:
+            # Get the bounding box to calculate center
+            x, y, w, h = cv2.boundingRect(contour)
+            center_x = x + w // 2
+            center_y = y + h // 2
 
-        # Get the (x, y) coordinates and radius of the first detected circle
-        for (x, y, r) in circles:
-            # Exclude stop lights
-            if 20 <= r <= 50:
-                continue
-            # Check for sign characteristics, e.g., circle size range
-            elif 40 <= r <= 100:
-                # Return the center coordinates of the detected circle
-                return x, y, 'stop'
+            # Check area size
+            area = cv2.contourArea(contour)
+            if area > 500:  # Example threshold
+                return center_x, center_y, 'stop'
 
     return 0, 0, 'None'
 
@@ -301,9 +308,12 @@ def identify_warning(img: np.ndarray) -> tuple:
     # Convert the image to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
+    # # Define orange color range
+    # lower_orange = np.array([5, 100, 100])
+    # upper_orange = np.array([20, 255, 255])
     # Define yellow color range
     lower_yellow = np.array([20, 100, 100])
-    upper_yellow = np.array([30, 255, 255])
+    upper_yellow = np.array([25, 255, 255])
 
     # Define yellow color range
     mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
