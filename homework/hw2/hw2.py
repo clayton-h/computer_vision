@@ -1,52 +1,69 @@
 import cv2
 import numpy as np
-from fontTools.misc.bezierTools import epsilon
-from numpy.ma.core import masked
 
 
-def sign_lines(img: np.ndarray) -> np.ndarray:
-    """
-    This function takes in the image as a numpy array and returns a numpy array of lines.
+# def sign_lines(img: np.ndarray) -> np.ndarray:
+#     """
+#     This function takes in the image as a numpy array and returns a numpy array of lines.
+#
+#     https://docs.opencv.org/3.4/d9/db0/tutorial_hough_lines.html
+#     :param img: Image as numpy array
+#     :return: Numpy array of lines.
+#     """
+#     # Copy the image
+#     img_cp = img.copy()
+#
+#     # Image grayscale conversion and Gaussian blur
+#     img_gray = cv2.cvtColor(img_cp, cv2.COLOR_BGR2GRAY)
+#     img_blur = cv2.GaussianBlur(img_gray, (0, 0), 1.5)
+#
+#     # Edge and line detection
+#     edges = cv2.Canny(img_blur, 50, 150)
+#     lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=20, minLineLength=50, maxLineGap=15) # minLineLength=50
+#
+#     return lines
 
-    https://docs.opencv.org/3.4/d9/db0/tutorial_hough_lines.html
-    :param img: Image as numpy array
-    :return: Numpy array of lines.
-    """
-    # Copy the image
-    img_cp = img.copy()
 
-    # Image grayscale conversion and Gaussian blur
-    img_gray = cv2.cvtColor(img_cp, cv2.COLOR_BGR2GRAY)
-    img_blur = cv2.GaussianBlur(img_gray, (0, 0), 1.5)
-
-    # Edge and line detection
-    edges = cv2.Canny(img_blur, 50, 150)
-    lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=20, minLineLength=50, maxLineGap=15) # minLineLength=50
-
-    return lines
-
-
-def detect_shapes(img: np.ndarray) -> list:
+def detect_shape(mask: np.ndarray) -> tuple:
     """
     This function takes in the image as a numpy array and returns a list of shapes.
     :param img: Image as numpy array
     :return: List of shapes.
     """
-    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    _, thresh = cv2.threshold(img_gray, 127, 255, cv2.THRESH_BINARY)
-    contours, _ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    # Find contours in the mask
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    shapes = []
     for contour in contours:
-        epsilon = .02 * cv2.arcLength(contour, True)
+        # Approximate the contour to a polygon
+        epsilon = 0.02 * cv2.arcLength(contour, True)
         approx = cv2.approxPolyDP(contour, epsilon, True)
 
-        if len(approx) == 3:
-            shapes.append(('triangle', approx))
-        elif len(approx) == 4:
-            shapes.append(('polygon', approx))
+        # Get the bounding box to calculate center
+        x, y, w, h = cv2.boundingRect(contour)
+        center_x = x + w // 2
+        center_y = y + h // 2
 
-    return shapes
+        area = cv2.contourArea(contour)
+
+        # Area check to filter out small contours
+        if area > 500:
+            # # Check number of vertices
+            # if len(approx) == 3:
+            #     return center_x, center_y, 'yield'
+            # elif len(approx) == 4:
+            #     # Check aspect ratio for rectangle or square
+            #     aspect_ratio = float(w) / h
+            #     if cv2.isContourConvex(approx):
+            #         if aspect_ratio >= 1.2:
+            #             return center_x, center_y, 'services'
+            #         else:
+            #             return center_x, center_y, 'stop'
+            #     else:
+            #         return center_x, center_y, 'construction'
+            if len(approx) == 8:
+                return center_x, center_y, 'stop'
+
+    return 0, 0, 'None'
 
 
 def sign_circle(img: np.ndarray) -> np.ndarray:
@@ -178,27 +195,7 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
     mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
     mask = cv2.bitwise_or(mask1, mask2)
 
-    # Find contours in the mask
-    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    for contour in contours:
-        # Approximate the contour to a polygon
-        epsilon = 0.02 * cv2.arcLength(contour, True)
-        approx = cv2.approxPolyDP(contour, epsilon, True)
-
-        # Check if the shape is an octagon (8 sides)
-        if len(approx) == 8:
-            # Get the bounding box to calculate center
-            x, y, w, h = cv2.boundingRect(contour)
-            center_x = x + w // 2
-            center_y = y + h // 2
-
-            # Check area size
-            area = cv2.contourArea(contour)
-            if area > 500:  # Example threshold
-                return center_x, center_y, 'stop'
-
-    return 0, 0, 'None'
+    return detect_shape(mask)
 
 
 def identify_yield(img: np.ndarray) -> tuple:
