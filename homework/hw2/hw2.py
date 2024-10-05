@@ -274,7 +274,7 @@ def identify_construction(img: np.ndarray) -> tuple:
     # Convert the image to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
-    # Define orange color range
+    # Define orange color range (typical for construction signs)
     lower_orange = np.array([5, 100, 100])
     upper_orange = np.array([20, 255, 255])
 
@@ -284,23 +284,28 @@ def identify_construction(img: np.ndarray) -> tuple:
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
 
-    # Detect sign lines
-    lines = sign_lines(masked_img)
+    # Detect contours from the masked image
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    if lines is not None:
-        # Get x and y coordinates from detected lines
-        x, y = sign_axis(lines)
+    for contour in contours:
+        # Approximate the contour to a polygon
+        epsilon = 0.02 * cv2.arcLength(contour, True)
+        approx = cv2.approxPolyDP(contour, epsilon, True)
 
-        # Calculate the average position
-        if len(x) > 0 and len(y) > 0:
-            avg_x = np.mean(x).astype(int)
-            avg_y = np.mean(y).astype(int)
+        # Check if the shape is a diamond-like (4 sides) or a rectangle (4 sides)
+        num_sides = len(approx)
+        if num_sides == 4 and cv2.isContourConvex(approx):
+            # Get the bounding box to calculate center
+            x, y, w, h = cv2.boundingRect(contour)
+            center_x = x + w // 2
+            center_y = y + h // 2
 
-            # Return the detected sign center coordinates and label
-            return avg_x, avg_y, 'construction'
+            # Check area size to filter out small contours
+            area = cv2.contourArea(contour)
+            if area > 500:
+                return center_x, center_y, 'construction'
 
     return 0, 0, 'None'
-
 
 
 def identify_warning(img: np.ndarray) -> tuple:
@@ -344,7 +349,7 @@ def identify_warning(img: np.ndarray) -> tuple:
 
             # Check area size to filter out small contours
             area = cv2.contourArea(contour)
-            if area > 500:  # Example threshold for area
+            if area > 500:
                 return center_x, center_y, 'warning'
 
     return 0, 0, 'None'
@@ -476,6 +481,11 @@ def identify_signs(img: np.ndarray) -> np.ndarray:
     if sign_name != 'None':
         found_signs.append([x, y, sign_name])
 
+    # # Call traffic light detection function
+    # x, y, sign_name = identify_traffic_light(img_cp)
+    # if sign_name != 'None':
+    #     found_signs.append([x, y, sign_name])
+
     return found_signs
 
 
@@ -494,7 +504,7 @@ def identify_signs_noisy(img: np.ndarray) -> np.ndarray:
     img_cp = img.copy()
 
     # Blur the image
-    img_blur = cv2.GaussianBlur(img_cp, (0, 0), 1.5)
+    img_blur = cv2.GaussianBlur(img_cp, (0, 0), 3)
 
     # Initialize an empty list to store the detected signs
     found_signs = []
@@ -528,6 +538,11 @@ def identify_signs_noisy(img: np.ndarray) -> np.ndarray:
     x, y, sign_name = identify_warning(img_blur)
     if sign_name != 'None':
         found_signs.append([x, y, sign_name])
+
+    # # Call traffic light detection function
+    # x, y, sign_name = identify_traffic_light(img_blur)
+    # if sign_name != 'None':
+    #     found_signs.append([x, y, sign_name])
 
     return found_signs
 
@@ -581,5 +596,10 @@ def identify_signs_real(img: np.ndarray) -> np.ndarray:
     x, y, sign_name = identify_warning(img_cp)
     if sign_name != 'None':
         found_signs.append([x, y, sign_name])
+
+    # # Call traffic light detection function
+    # x, y, sign_name = identify_traffic_light(img_cp)
+    # if sign_name != 'None':
+    #     found_signs.append([x, y, sign_name])
 
     return found_signs
