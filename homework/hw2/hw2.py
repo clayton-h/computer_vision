@@ -26,6 +26,29 @@ def sign_lines(img: np.ndarray) -> np.ndarray:
     return lines
 
 
+def detect_shapes(img: np.ndarray) -> list:
+    """
+    This function takes in the image as a numpy array and returns a list of shapes.
+    :param img: Image as numpy array
+    :return: List of shapes.
+    """
+    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    _, thresh = cv2.threshold(img_gray, 127, 255, cv2.THRESH_BINARY)
+    contours, _ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+    shapes = []
+    for contour in contours:
+        epsilon = .02 * cv2.arcLength(contour, True)
+        approx = cv2.approxPolyDP(contour, epsilon, True)
+
+        if len(approx) == 3:
+            shapes.append(('triangle', approx))
+        elif len(approx) == 4:
+            shapes.append(('polygon', approx))
+
+    return shapes
+
+
 def sign_circle(img: np.ndarray) -> np.ndarray:
     """
     This function takes in the image as a numpy array and returns a numpy array of circles.
@@ -91,29 +114,6 @@ def show_image(title: str, img: np.ndarray, wait: int = 0):
     cv2.destroyAllWindows()
 
 
-def detect_shapes(img: np.ndarray) -> list:
-    """
-    This function takes in the image as a numpy array and returns a list of shapes.
-    :param img: Image as numpy array
-    :return: List of shapes.
-    """
-    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    _, thresh = cv2.threshold(img_gray, 127, 255, cv2.THRESH_BINARY)
-    contours, _ = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-    shapes = []
-    for contour in contours:
-        epsilon = .02 * cv2.arcLength(contour, True)
-        approx = cv2.approxPolyDP(contour, epsilon, True)
-
-        if len(approx) == 3:
-            shapes.append(('triangle', approx))
-        elif len(approx) == 4:
-            shapes.append(('polygon', approx))
-
-    return shapes
-
-
 def identify_traffic_light(img: np.ndarray) -> tuple:
     """
     This function takes in the image as a numpy array and returns a tuple identifying the location
@@ -152,10 +152,6 @@ def identify_traffic_light(img: np.ndarray) -> tuple:
                 return x, y, 'Green'
 
     return 0, 0, 'None'
-
-
-import numpy as np
-import cv2
 
 
 def identify_stop_sign(img: np.ndarray) -> tuple:
@@ -430,7 +426,11 @@ def identify_services(img: np.ndarray) -> tuple:
             # Return the center of the bounding box as the detected sign
             center_x = x + w // 2
             center_y = y + h // 2
-            return center_x, center_y, 'services'
+
+            # Check area size to filter out small contours
+            area = cv2.contourArea(contour)
+            if area > 500:
+                return center_x, center_y, 'services'
 
     # Return 'None' if no service signs are detected
     return 0, 0, 'None'
