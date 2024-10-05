@@ -38,29 +38,48 @@ def detect_shape(mask: np.ndarray) -> tuple:
         epsilon = 0.02 * cv2.arcLength(contour, True)
         approx = cv2.approxPolyDP(contour, epsilon, True)
 
-        # Get the bounding box to calculate center
-        x, y, w, h = cv2.boundingRect(contour)
-        center_x = x + w // 2
-        center_y = y + h // 2
+        # # Check if the shape is a triangle (3 vertices)
+        # if len(approx) == 3:
+        #     # Get the bounding box to calculate center
+        #     x, y, w, h = cv2.boundingRect(contour)
+        #     center_x = x + w // 2
+        #     center_y = y + h // 2
+        #
+        #     # Check area size to filter out small contours
+        #     area = cv2.contourArea(contour)
+        #     if area > 500:  # Adjust this threshold based on image resolution
+        #         return center_x, center_y, 'yield'
+        #
+        # # Check if the approximated contour has 4 vertices
+        # elif len(approx) == 4:
+        #     # Use cv2.boundingRect to get the bounding box
+        #     x, y, w, h = cv2.boundingRect(contour)
+        #     center_x = x + w // 2
+        #     center_y = y + h // 2
+        #
+        #     # Check area size to filter out small contours
+        #     area = cv2.contourArea(contour)
+        #     if area > 500:  # Adjust based on your image resolution
+        #         # Check the convexity of the contour
+        #         if cv2.isContourConvex(approx):
+        #             aspect_ratio = float(w) / h
+        #             if aspect_ratio >= 1.2:  # Rectangle-like
+        #                 return center_x, center_y, 'services'  # Example for services sign
+        #             else:  # Square-like or near diamond
+        #                 return center_x, center_y, 'stop'  # Example for stop sign
+        #         else:  # If it's not convex, it might be a diamond
+        #             return center_x, center_y, 'construction'  # Example for construction sign
 
-        area = cv2.contourArea(contour)
+        # Check if the shape is an octagon (8 sides)
+        if len(approx) == 8:
+            # Get the bounding box to calculate center
+            x, y, w, h = cv2.boundingRect(contour)
+            center_x = x + w // 2
+            center_y = y + h // 2
 
-        # Area check to filter out small contours
-        if area > 500:
-            # # Check number of vertices
-            # if len(approx) == 3:
-            #     return center_x, center_y, 'yield'
-            # elif len(approx) == 4:
-            #     # Check aspect ratio for rectangle or square
-            #     aspect_ratio = float(w) / h
-            #     if cv2.isContourConvex(approx):
-            #         if aspect_ratio >= 1.2:
-            #             return center_x, center_y, 'services'
-            #         else:
-            #             return center_x, center_y, 'stop'
-            #     else:
-            #         return center_x, center_y, 'construction'
-            if len(approx) == 8:
+            # Check area size
+            area = cv2.contourArea(contour)
+            if area > 500:  # Example threshold
                 return center_x, center_y, 'stop'
 
     return 0, 0, 'None'
@@ -195,7 +214,27 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
     mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
     mask = cv2.bitwise_or(mask1, mask2)
 
-    return detect_shape(mask)
+    # Find contours in the mask
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    for contour in contours:
+        # Approximate the contour to a polygon
+        epsilon = 0.02 * cv2.arcLength(contour, True)
+        approx = cv2.approxPolyDP(contour, epsilon, True)
+
+        # Check if the shape is an octagon (8 sides)
+        if len(approx) == 8:
+            # Get the bounding box to calculate center
+            x, y, w, h = cv2.boundingRect(contour)
+            center_x = x + w // 2
+            center_y = y + h // 2
+
+            # Check area size
+            area = cv2.contourArea(contour)
+            if area > 500:  # Example threshold
+                return center_x, center_y, 'stop'
+
+    return 0, 0, 'None'
 
 
 def identify_yield(img: np.ndarray) -> tuple:
@@ -274,9 +313,6 @@ def identify_construction(img: np.ndarray) -> tuple:
     # Create a mask for the orange color
     mask = cv2.inRange(hsv, lower_orange, upper_orange)
 
-    # Apply the mask to the image
-    masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
-
     # Detect contours from the masked image
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -320,9 +356,6 @@ def identify_warning(img: np.ndarray) -> tuple:
 
     # Create a mask for the yellow color
     mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
-
-    # Apply the mask to the image
-    masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
 
     # Detect contours from the masked image
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
