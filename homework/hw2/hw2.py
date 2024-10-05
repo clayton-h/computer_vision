@@ -402,7 +402,7 @@ def identify_services(img: np.ndarray) -> tuple:
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
     # Define blue color range and create a mask
-    lower_blue = np.array([100, 150, 0])
+    lower_blue = np.array([100, 150, 25])
     upper_blue = np.array([140, 255, 255])
     mask = cv2.inRange(hsv, lower_blue, upper_blue)
 
