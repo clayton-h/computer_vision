@@ -270,7 +270,7 @@ def identify_yield(img: np.ndarray) -> tuple:
     # Threshold the grayscale image
     _, thresh = cv2.threshold(gray_masked_img, 1, 255, cv2.THRESH_BINARY)
 
-    # Find contours in the thresholded image
+    # Find contours in the threshold image
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     for contour in contours:
@@ -488,7 +488,7 @@ def identify_signs(img: np.ndarray) -> list[list]:
     ] # identify_traffic_light
 
     for func in detection_funcs:
-        x, y, sign_name = func(img)
+        x, y, sign_name = func(img_cp)
         if sign_name != 'None':
             found_signs.append([x, y, sign_name])
 
@@ -522,7 +522,7 @@ def identify_signs_noisy(img: np.ndarray) -> list[list]:
     ] # identify_traffic_light
 
     for func in detection_funcs:
-        x, y, sign_name = func(img)
+        x, y, sign_name = func(img_blur)
         if sign_name != 'None':
             found_signs.append([x, y, sign_name])
 
@@ -556,7 +556,7 @@ def identify_signs_real(img: np.ndarray) -> list[list]:
     ] # identify_traffic_light
 
     for func in detection_funcs:
-        x, y, sign_name = func(img)
+        x, y, sign_name = func(img_cp)
         if sign_name != 'None':
             found_signs.append([x, y, sign_name])
 
