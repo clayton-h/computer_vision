@@ -466,12 +466,12 @@ def identify_services(img: np.ndarray) -> tuple:
     return 0, 0, 'None'
 
 
-def identify_signs(img: np.ndarray) -> np.ndarray:
+def identify_signs(img: np.ndarray) -> list[list]:
     """
     This function takes in the image as a numpy array and returns a numpy array of all signs locations and name.
     Call the other identify functions to determine where that sign is if it exists.
     :param img: Image as numpy array
-    :return: Numpy array of all signs locations and name.
+    :return: List of lists of all signs locations and name.
              [[x, y, 'stop'],
               [x, y, 'construction']]
     """
@@ -495,14 +495,14 @@ def identify_signs(img: np.ndarray) -> np.ndarray:
     return found_signs
 
 
-def identify_signs_noisy(img: np.ndarray) -> np.ndarray:
+def identify_signs_noisy(img: np.ndarray) -> list[list]:
     """
     This function takes in the image as a numpy array and returns a numpy array of all signs locations and name.
     Call the other identify functions to determine where that sign is if it exists.
 
     The images will have gaussian noise applied to them so you will need to do some blurring before detection.
     :param img: Image as numpy array
-    :return: Numpy array of all signs locations and name.
+    :return: List of lists of all signs locations and name.
              [[x, y, 'stop'],
               [x, y, 'construction']]
     """
@@ -529,7 +529,7 @@ def identify_signs_noisy(img: np.ndarray) -> np.ndarray:
     return found_signs
 
 
-def identify_signs_real(img: np.ndarray) -> np.ndarray:
+def identify_signs_real(img: np.ndarray) -> list[list]:
     """
     This function takes in the image as a numpy array and returns a numpy array of all signs locations and name.
     Call the other identify functions to determine where that sign is if it exists.
@@ -539,7 +539,7 @@ def identify_signs_real(img: np.ndarray) -> np.ndarray:
     and other code paths
 
     :param img: Image as numpy array
-    :return: Numpy array of all signs locations and name.
+    :return: List of lists of all signs locations and name.
              [[x, y, 'stop'],
               [x, y, 'construction']]
     """
