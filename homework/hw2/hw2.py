@@ -27,7 +27,7 @@ import numpy as np
 def detect_shape(mask: np.ndarray) -> tuple:
     """
     This function takes in the image as a numpy array and returns a list of shapes.
-    :param img: Image as numpy array
+    :param mask: Image as numpy array
     :return: List of shapes.
     """
     # Find contours in the mask
@@ -365,18 +365,18 @@ def identify_warning(img: np.ndarray) -> tuple:
         epsilon = 0.02 * cv2.arcLength(contour, True)
         approx = cv2.approxPolyDP(contour, epsilon, True)
 
-        # Check if the shape is a triangle (3 sides) or diamond-like (4 sides)
+        # Check if the shape is diamond-like (4 sides)
         num_sides = len(approx)
-        if num_sides == 3 or (num_sides == 4 and cv2.isContourConvex(approx)):
+        if num_sides == 4 and cv2.isContourConvex(approx):
             # Get the bounding box to calculate center
             x, y, w, h = cv2.boundingRect(contour)
-            center_x = x + w // 2
-            center_y = y + h // 2
+            aspect_ratio = float(w) / h
 
-            # Check area size to filter out small contours
-            area = cv2.contourArea(contour)
-            if area > 500:
-                return center_x, center_y, 'warning'
+            # Check for diamond-like aspect ratio (roughly square-shaped)
+            if 0.8 <= aspect_ratio <= 1.2:
+                area = cv2.contourArea(contour)
+                if area > 500:
+                    return x + w // 2, y + h // 2, 'warning'
 
     return 0, 0, 'None'
 
