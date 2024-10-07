@@ -478,43 +478,19 @@ def identify_signs(img: np.ndarray) -> np.ndarray:
     # Copy the image
     img_cp = img.copy()
 
-    # Initialize an empty list to store the detected signs
+    # List to store the detected signs
     found_signs = []
 
-    # Call sign detection function
-    x, y, sign_name = identify_construction(img_cp)
-    if sign_name != 'None':
-        found_signs.append([x, y, sign_name])
+    # List to store the function names
+    detection_funcs = [
+        identify_construction, identify_stop_sign, identify_yield, identify_rr_crossing, identify_services,
+        identify_warning
+    ] # identify_traffic_light
 
-    # Call sign detection function
-    x, y, sign_name = identify_stop_sign(img_cp)
-    if sign_name != 'None':
-        found_signs.append([x, y, sign_name])
-
-    # Call sign detection function
-    x, y, sign_name = identify_yield(img_cp)
-    if sign_name != 'None':
-        found_signs.append([x, y, sign_name])
-
-    # Call sign detection function
-    x, y, sign_name = identify_rr_crossing(img_cp)
-    if sign_name != 'None':
-        found_signs.append([x, y, sign_name])
-
-    # Call sign detection function
-    x, y, sign_name = identify_services(img_cp)
-    if sign_name != 'None':
-        found_signs.append([x, y, sign_name])
-
-    # Call sign detection function
-    x, y, sign_name = identify_warning(img_cp)
-    if sign_name != 'None':
-        found_signs.append([x, y, sign_name])
-
-    # # Call traffic light detection function
-    # x, y, sign_name = identify_traffic_light(img_cp)
-    # if sign_name != 'None':
-    #     found_signs.append([x, y, sign_name])
+    for func in detection_funcs:
+        x, y, sign_name = func(img)
+        if sign_name != 'None':
+            found_signs.append([x, y, sign_name])
 
     return found_signs
 
@@ -536,43 +512,19 @@ def identify_signs_noisy(img: np.ndarray) -> np.ndarray:
     # Blur the image
     img_blur = cv2.GaussianBlur(img_cp, (0, 0), 3)
 
-    # Initialize an empty list to store the detected signs
+    # List to store the detected signs
     found_signs = []
 
-    # Call sign detection function
-    x, y, sign_name = identify_construction(img_blur)
-    if sign_name != 'None':
-        found_signs.append([x, y, sign_name])
+    # List to store the function names
+    detection_funcs = [
+        identify_construction, identify_stop_sign, identify_yield, identify_rr_crossing, identify_services,
+        identify_warning
+    ] # identify_traffic_light
 
-    # Call sign detection function
-    x, y, sign_name = identify_stop_sign(img_blur)
-    if sign_name != 'None':
-        found_signs.append([x, y, sign_name])
-
-    # Call sign detection function
-    x, y, sign_name = identify_yield(img_blur)
-    if sign_name != 'None':
-        found_signs.append([x, y, sign_name])
-
-    # Call sign detection function
-    x, y, sign_name = identify_rr_crossing(img_blur)
-    if sign_name != 'None':
-        found_signs.append([x, y, sign_name])
-
-    # Call sign detection function
-    x, y, sign_name = identify_services(img_blur)
-    if sign_name != 'None':
-        found_signs.append([x, y, sign_name])
-
-    # Call sign detection function
-    x, y, sign_name = identify_warning(img_blur)
-    if sign_name != 'None':
-        found_signs.append([x, y, sign_name])
-
-    # # Call traffic light detection function
-    # x, y, sign_name = identify_traffic_light(img_blur)
-    # if sign_name != 'None':
-    #     found_signs.append([x, y, sign_name])
+    for func in detection_funcs:
+        x, y, sign_name = func(img)
+        if sign_name != 'None':
+            found_signs.append([x, y, sign_name])
 
     return found_signs
 
@@ -594,42 +546,18 @@ def identify_signs_real(img: np.ndarray) -> np.ndarray:
     # Copy the image
     img_cp = img.copy()
 
-    # Initialize an empty list to store the detected signs
+    # List to store the detected signs
     found_signs = []
 
-    # Call sign detection function
-    x, y, sign_name = identify_construction(img_cp)
-    if sign_name != 'None':
-        found_signs.append([x, y, sign_name])
+    # List to store the function names
+    detection_funcs = [
+        identify_construction, identify_stop_sign, identify_yield, identify_rr_crossing, identify_services,
+        identify_warning
+    ] # identify_traffic_light
 
-    # Call sign detection function
-    x, y, sign_name = identify_stop_sign(img_cp)
-    if sign_name != 'None':
-        found_signs.append([x, y, sign_name])
-
-    # Call sign detection function
-    x, y, sign_name = identify_yield(img_cp)
-    if sign_name != 'None':
-        found_signs.append([x, y, sign_name])
-
-    # Call sign detection function
-    x, y, sign_name = identify_rr_crossing(img_cp)
-    if sign_name != 'None':
-        found_signs.append([x, y, sign_name])
-
-    # Call sign detection function
-    x, y, sign_name = identify_services(img_cp)
-    if sign_name != 'None':
-        found_signs.append([x, y, sign_name])
-
-    # Call sign detection function
-    x, y, sign_name = identify_warning(img_cp)
-    if sign_name != 'None':
-        found_signs.append([x, y, sign_name])
-
-    # # Call traffic light detection function
-    # x, y, sign_name = identify_traffic_light(img_cp)
-    # if sign_name != 'None':
-    #     found_signs.append([x, y, sign_name])
+    for func in detection_funcs:
+        x, y, sign_name = func(img)
+        if sign_name != 'None':
+            found_signs.append([x, y, sign_name])
 
     return found_signs
