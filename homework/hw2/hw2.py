@@ -299,8 +299,11 @@ def identify_warning(img: np.ndarray) -> tuple:
     # Create a mask for the yellow color
     mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
 
-    # Detect contours from the masked image
-    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # Apply the mask to the image
+    masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
+
+    # Detect sign vertices
+    contours = sign_vertices(masked_img)
 
     for contour in contours:
         # Approximate the contour to a polygon
@@ -370,8 +373,11 @@ def identify_services(img: np.ndarray) -> tuple:
     :return: tuple with x, y, and sign name
              (x, y, 'services')
     """
+    # Copy the image
+    img_cp = img.copy()
+
     # Convert the image to HSV
-    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
     # Define blue color range and create a mask
     lower_blue = np.array([100, 150, 25])
