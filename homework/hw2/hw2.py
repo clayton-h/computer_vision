@@ -2,26 +2,29 @@ import cv2
 import numpy as np
 
 
-# def sign_lines(img: np.ndarray) -> np.ndarray:
-#     """
-#     This function takes in the image as a numpy array and returns a numpy array of lines.
-#
-#     https://docs.opencv.org/3.4/d9/db0/tutorial_hough_lines.html
-#     :param img: Image as numpy array
-#     :return: Numpy array of lines.
-#     """
-#     # Copy the image
-#     img_cp = img.copy()
-#
-#     # Image grayscale conversion and Gaussian blur
-#     img_gray = cv2.cvtColor(img_cp, cv2.COLOR_BGR2GRAY)
-#     img_blur = cv2.GaussianBlur(img_gray, (0, 0), 1.5)
-#
-#     # Edge and line detection
-#     edges = cv2.Canny(img_blur, 50, 150)
-#     lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=20, minLineLength=50, maxLineGap=15) # minLineLength=50
-#
-#     return lines
+def sign_vertices(img: np.ndarray) -> np.ndarray:
+    """
+    This function takes in the image as a numpy array and returns a numpy array of vertices.
+
+    https://docs.opencv.org/3.4/d9/db0/tutorial_hough_lines.html
+    :param img: Image as numpy array
+    :return: Numpy array of vertices.
+    """
+    # Copy the image
+    img_cp = img.copy()
+
+    # Image grayscale conversion and Gaussian blur
+    img_gray = cv2.cvtColor(img_cp, cv2.COLOR_BGR2GRAY)
+    img_blur = cv2.GaussianBlur(img_gray, (0, 0), 1.5)
+
+    # Detect edges
+    edges = cv2.Canny(img_blur, 50, 150)
+    # lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=20, minLineLength=50, maxLineGap=15) # minLineLength=50
+
+    # Detect contours from edges
+    contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    return contours
 
 
 def sign_circle(img: np.ndarray) -> np.ndarray:
@@ -153,8 +156,11 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
     mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
     mask = cv2.bitwise_or(mask1, mask2)
 
-    # Find contours in the mask
-    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # Apply the mask to the image
+    masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
+
+    # Detect sign vertices
+    contours = sign_vertices(masked_img)
 
     for contour in contours:
         # Approximate the contour to a polygon
@@ -203,15 +209,8 @@ def identify_yield(img: np.ndarray) -> tuple:
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
 
-    # Convert the masked image to grayscale and blur
-    img_gray = cv2.cvtColor(masked_img, cv2.COLOR_BGR2GRAY)
-    img_blur = cv2.GaussianBlur(img_gray, (0, 0), 1.5)
-
-    # Detect edges
-    edges = cv2.Canny(img_blur, 50, 150)
-
-    # Find contours in the threshold image
-    contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # Detect sign vertices
+    contours = sign_vertices(masked_img)
 
     for contour in contours:
         # Approximate the contour to a polygon
