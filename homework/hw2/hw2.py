@@ -24,67 +24,6 @@ import numpy as np
 #     return lines
 
 
-def detect_shape(mask: np.ndarray) -> tuple:
-    """
-    This function takes in the image as a numpy array and returns a list of shapes.
-    :param mask: Image as numpy array
-    :return: List of shapes.
-    """
-    # Find contours in the mask
-    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    for contour in contours:
-        # Approximate the contour to a polygon
-        epsilon = 0.02 * cv2.arcLength(contour, True)
-        approx = cv2.approxPolyDP(contour, epsilon, True)
-
-        # # Check if the shape is a triangle (3 vertices)
-        # if len(approx) == 3:
-        #     # Get the bounding box to calculate center
-        #     x, y, w, h = cv2.boundingRect(contour)
-        #     center_x = x + w // 2
-        #     center_y = y + h // 2
-        #
-        #     # Check area size to filter out small contours
-        #     area = cv2.contourArea(contour)
-        #     if area > 500:  # Adjust this threshold based on image resolution
-        #         return center_x, center_y, 'yield'
-        #
-        # # Check if the approximated contour has 4 vertices
-        # elif len(approx) == 4:
-        #     # Use cv2.boundingRect to get the bounding box
-        #     x, y, w, h = cv2.boundingRect(contour)
-        #     center_x = x + w // 2
-        #     center_y = y + h // 2
-        #
-        #     # Check area size to filter out small contours
-        #     area = cv2.contourArea(contour)
-        #     if area > 500:  # Adjust based on your image resolution
-        #         # Check the convexity of the contour
-        #         if cv2.isContourConvex(approx):
-        #             aspect_ratio = float(w) / h
-        #             if aspect_ratio >= 1.2:  # Rectangle-like
-        #                 return center_x, center_y, 'services'  # Example for services sign
-        #             else:  # Square-like or near diamond
-        #                 return center_x, center_y, 'stop'  # Example for stop sign
-        #         else:  # If it's not convex, it might be a diamond
-        #             return center_x, center_y, 'construction'  # Example for construction sign
-
-        # Check if the shape is an octagon (8 sides)
-        if len(approx) == 8:
-            # Get the bounding box to calculate center
-            x, y, w, h = cv2.boundingRect(contour)
-            center_x = x + w // 2
-            center_y = y + h // 2
-
-            # Check area size
-            area = cv2.contourArea(contour)
-            if area > 500:  # Example threshold
-                return center_x, center_y, 'stop'
-
-    return 0, 0, 'None'
-
-
 def sign_circle(img: np.ndarray) -> np.ndarray:
     """
     This function takes in the image as a numpy array and returns a numpy array of circles.
@@ -264,14 +203,15 @@ def identify_yield(img: np.ndarray) -> tuple:
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
 
-    # Convert the masked image to grayscale
-    gray_masked_img = cv2.cvtColor(masked_img, cv2.COLOR_BGR2GRAY)
+    # Convert the masked image to grayscale and blur
+    img_gray = cv2.cvtColor(masked_img, cv2.COLOR_BGR2GRAY)
+    img_blur = cv2.GaussianBlur(img_gray, (0, 0), 1.5)
 
-    # Threshold the grayscale image
-    _, thresh = cv2.threshold(gray_masked_img, 1, 255, cv2.THRESH_BINARY)
+    # Detect edges
+    edges = cv2.Canny(img_blur, 50, 150)
 
     # Find contours in the threshold image
-    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     for contour in contours:
         # Approximate the contour to a polygon
