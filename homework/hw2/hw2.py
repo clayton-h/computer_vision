@@ -27,10 +27,12 @@ def sign_vertices(img: np.ndarray) -> np.ndarray:
     return contours
 
 
-def sign_circle(img: np.ndarray) -> np.ndarray:
+def sign_circle(img: np.ndarray, min_radius: int, max_radius: int) -> np.ndarray:
     """
     This function takes in the image as a numpy array and returns a numpy array of circles.
     :param img: Image as numpy array
+    :param min_radius: Minimum radius of circles to detect
+    :param max_radius: Maximum radius of circles to detect
     :return: Numpy array of circles.
     """
     # Copy the image
@@ -47,8 +49,8 @@ def sign_circle(img: np.ndarray) -> np.ndarray:
         minDist=30,
         param1=50,
         param2=20,
-        minRadius=10,
-        maxRadius=100
+        minRadius=min_radius,
+        maxRadius=max_radius
     )
 
     return circles
@@ -105,8 +107,19 @@ def identify_traffic_light(img: np.ndarray) -> tuple:
     # Copy the image
     img_cp = img.copy()
 
+    # # Detect stop signs first and ignore them
+    # stop_sign_x, stop_sign_y, stop_sign_name = identify_stop_sign(img_cp)
+    #
+    # if stop_sign_name == 'stop':
+    #     # If a stop sign is detected,
+    #     # draw a black circle or a mask
+    #     # over the stop sign region so it is ignored.
+    #     mask = np.zeros_like(img_cp)
+    #     cv2.circle(mask, (stop_sign_x, stop_sign_y), 50, (0, 0, 0), thickness=-1)
+    #     img_cp = cv2.bitwise_and(img_cp, mask)
+
     # Detect circles
-    circles = sign_circle(img_cp)
+    circles = sign_circle(img_cp, 10, 30)
 
     if circles is not None:
         # Convert circle coordinates to integers
@@ -350,7 +363,7 @@ def identify_rr_crossing(img: np.ndarray) -> tuple:
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
 
     # Detect circles
-    circles = sign_circle(masked_img)
+    circles = sign_circle(masked_img, 10, 100)
 
     if circles is not None:
         # Convert circles to integer values
@@ -432,8 +445,8 @@ def identify_signs(img: np.ndarray) -> list[list]:
     # List to store the function names
     detection_funcs = [
         identify_construction, identify_stop_sign, identify_yield, identify_rr_crossing, identify_services,
-        identify_warning
-    ] # identify_traffic_light
+        identify_warning, identify_traffic_light
+    ]
 
     for func in detection_funcs:
         x, y, sign_name = func(img_cp)
@@ -466,8 +479,8 @@ def identify_signs_noisy(img: np.ndarray) -> list[list]:
     # List to store the function names
     detection_funcs = [
         identify_construction, identify_stop_sign, identify_yield, identify_rr_crossing, identify_services,
-        identify_warning
-    ] # identify_traffic_light
+        identify_warning, identify_traffic_light
+    ]
 
     for func in detection_funcs:
         x, y, sign_name = func(img_blur)
