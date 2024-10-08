@@ -252,8 +252,11 @@ def identify_construction(img: np.ndarray) -> tuple:
     # Create a mask for the orange color
     mask = cv2.inRange(hsv, lower_orange, upper_orange)
 
-    # Detect contours from the masked image
-    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # Apply the mask to the image
+    masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
+
+    # Detect sign vertices
+    contours = sign_vertices(masked_img)
 
     for contour in contours:
         # Approximate the contour to a polygon
@@ -449,7 +452,7 @@ def identify_signs_noisy(img: np.ndarray) -> list[list]:
     img_cp = img.copy()
 
     # Blur the image
-    img_blur = cv2.GaussianBlur(img_cp, (0, 0), 3)
+    img_blur = cv2.GaussianBlur(img_cp, (0, 0), 3.5)
 
     # List to store the detected signs
     found_signs = []
