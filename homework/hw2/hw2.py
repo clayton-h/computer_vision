@@ -46,7 +46,7 @@ def sign_circle(img: np.ndarray, min_radius: int, max_radius: int) -> np.ndarray
         img_blur,
         cv2.HOUGH_GRADIENT,
         dp=1.2,
-        minDist=30,
+        minDist=20,
         param1=50,
         param2=20,
         minRadius=min_radius,
@@ -111,11 +111,10 @@ def identify_traffic_light(img: np.ndarray) -> tuple:
     # stop_sign_x, stop_sign_y, stop_sign_name = identify_stop_sign(img_cp)
     #
     # if stop_sign_name == 'stop':
-    #     # If a stop sign is detected,
-    #     # draw a black circle or a mask
-    #     # over the stop sign region so it is ignored.
+    #     # Apply a mask around only the octagonal shape
     #     mask = np.zeros_like(img_cp)
-    #     cv2.circle(mask, (stop_sign_x, stop_sign_y), 50, (0, 0, 0), thickness=-1)
+    #     stop_sign_contour = np.array([[stop_sign_x, stop_sign_y]], dtype=np.int32)
+    #     cv2.fillPoly(mask, [stop_sign_contour], (0, 0, 0))
     #     img_cp = cv2.bitwise_and(img_cp, mask)
 
     # Detect circles
@@ -137,7 +136,7 @@ def identify_traffic_light(img: np.ndarray) -> tuple:
             # Check for yellow (both red and green channels are high)
             if avg_color[1] > 150 and avg_color[2] > 150:
                 return x, y, 'Yellow'
-            elif avg_color[2] > 150:
+            elif avg_color[2] > 150: #avg_color[0] < 10 or avg_color[0] > 170 and
                 return x, y, 'Red'
             elif avg_color[1] > 150:
                 return x, y, 'Green'
@@ -167,7 +166,7 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
     # Create a mask for the red color
     mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
     mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
-    mask = cv2.bitwise_or(mask1, mask2)
+    mask = mask1 | mask2
 
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
@@ -184,13 +183,13 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
         if len(approx) == 8:
             # Get the bounding box to calculate center
             x, y, w, h = cv2.boundingRect(contour)
-            center_x = x + w // 2
-            center_y = y + h // 2
+            aspect_ratio = float(w) / h
 
-            # Check area size
-            area = cv2.contourArea(contour)
-            if area > 500:  # Example threshold
-                return center_x, center_y, 'stop'
+            # Check for octagon-like aspect ratio (contour)
+            if 0.9 <= aspect_ratio <= 1.1:
+                area = cv2.contourArea(contour)
+                if area > 500:
+                    return x + w // 2, y + h // 2, 'stop'
 
     return 0, 0, 'None'
 
@@ -239,7 +238,7 @@ def identify_yield(img: np.ndarray) -> tuple:
 
             # Check area size to filter out small contours
             area = cv2.contourArea(contour)
-            if area > 500:  # Adjust this threshold based on image resolution
+            if area > 500:
                 return center_x, center_y, 'yield'
 
     return 0, 0, 'None'
