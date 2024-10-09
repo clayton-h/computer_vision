@@ -112,7 +112,7 @@ def identify_traffic_light(img: np.ndarray) -> tuple:
     #
     # if stop_sign_name == 'stop':
     #     # Apply a mask around only the octagonal shape
-    #     mask = np.zeros_like(img_cp)
+    #     mask = np.zeros_like(img_cp) * 255
     #     stop_sign_contour = np.array([[stop_sign_x, stop_sign_y]], dtype=np.int32)
     #     cv2.fillPoly(mask, [stop_sign_contour], (0, 0, 0))
     #     img_cp = cv2.bitwise_and(img_cp, mask)
@@ -128,7 +128,7 @@ def identify_traffic_light(img: np.ndarray) -> tuple:
             x, y, radius = circle[0], circle[1], circle[2]
 
             mask = np.zeros_like(img_cp)
-            cv2.circle(mask, (x, y), radius, (255, 255, 255), thickness=1)
+            cv2.circle(mask, (x, y), radius, (255, 255, 255), thickness=-1)
             masked_img = cv2.bitwise_and(img_cp, mask)
 
             avg_color = cv2.mean(masked_img, mask=cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY))
