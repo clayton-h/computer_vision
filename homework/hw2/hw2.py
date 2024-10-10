@@ -2,22 +2,21 @@ import cv2
 import numpy as np
 
 
-def sign_vertices(img: np.ndarray) -> np.ndarray:
+def sign_sides(img: np.ndarray) -> np.ndarray:
     """
-    This function takes in the image as a numpy array and returns a numpy array of vertices.
+    This function takes in the image as a numpy array and returns a numpy array of contours.
 
     https://docs.opencv.org/3.4/d9/db0/tutorial_hough_lines.html
     :param img: Image as numpy array
     :return: Numpy array of vertices.
     """
-    # Copy the image
     img_cp = img.copy()
 
-    # Image grayscale conversion and Gaussian blur
+    # Convert to grayscale and apply Gaussian blur
     img_gray = cv2.cvtColor(img_cp, cv2.COLOR_BGR2GRAY)
     img_blur = cv2.GaussianBlur(img_gray, (0, 0), 1.5)
 
-    # Detect edges
+    # Edge detection
     edges = cv2.Canny(img_blur, 50, 150)
     # lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=20, minLineLength=50, maxLineGap=15) # minLineLength=50
 
@@ -35,10 +34,9 @@ def sign_circle(img: np.ndarray, min_radius: int, max_radius: int) -> np.ndarray
     :param max_radius: Maximum radius of circles to detect
     :return: Numpy array of circles.
     """
-    # Copy the image
     img_cp = img.copy()
 
-    # Convert the image to grayscale and blur
+    # Convert to grayscale and apply Gaussian blur
     img_gray = cv2.cvtColor(img_cp, cv2.COLOR_BGR2GRAY)
     img_blur = cv2.GaussianBlur(img_gray, (0, 0), 2)
 
@@ -87,10 +85,10 @@ def show_image(title: str, img: np.ndarray, wait: int = 0):
     Display an image in a window and wait for a key press to continue.
     :param title: The title of the window.
     :param img: The image to display.
-    :param wait: Time to wait for a key press (0 means wait indefinitely).
+    :param wait: Time to wait for a key press (0 for default indefinite wait).
     """
     cv2.imshow(title, img)
-    cv2.waitKey(wait)  # Wait indefinitely by default
+    cv2.waitKey(wait)
     cv2.destroyAllWindows()
 
 
@@ -104,18 +102,17 @@ def identify_traffic_light(img: np.ndarray) -> tuple:
              (140, 100, 'None') or (140, 100, 'Red')
              In the case of no light lit, coordinates can be just center of traffic light
     """
-    # Copy the image
     img_cp = img.copy()
 
-    # Convert the image to HSV
+    # Convert to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
-    # Define grey color range
-    lower_grey = np.array([0, 0, 50])
-    upper_grey = np.array([180, 50, 200])
+    # Define gray color range
+    lower_gray = np.array([0, 0, 50])
+    upper_gray = np.array([180, 50, 200])
 
-    # Create a mask for the grey color
-    mask = cv2.inRange(hsv, lower_grey, upper_grey)
+    # Create a mask for gray
+    mask = cv2.inRange(hsv, lower_gray, upper_gray)
 
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
@@ -136,7 +133,8 @@ def identify_traffic_light(img: np.ndarray) -> tuple:
 
             avg_color = cv2.mean(masked_img, mask=cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY))
 
-            # Check for yellow (both red and green channels are high)
+            # Check for more of the desired average color in the traffic light region
+            # ([0] for blue channel, [1] for green, [2] for red)
             if avg_color[1] > 150 and avg_color[2] > 150:
                 return x, y, 'Yellow'
             elif avg_color[2] > 150:
@@ -154,10 +152,9 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
     :return: tuple with x, y, and sign name
              (x, y, 'stop')
     """
-    # Copy the image
     img_cp = img.copy()
 
-    # Convert the image to HSV
+    # Convert to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
     # Define red color range
@@ -166,7 +163,7 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
     lower_red2 = np.array([170, 150, 70])
     upper_red2 = np.array([180, 255, 255])
 
-    # Create a mask for the red color
+    # Create a mask for red
     mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
     mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
     mask = mask1 | mask2
@@ -174,8 +171,8 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
 
-    # Detect sign vertices
-    contours = sign_vertices(masked_img)
+    # Detect contours in the masked area
+    contours = sign_sides(masked_img)
 
     for contour in contours:
         # Approximate the contour to a polygon
@@ -186,10 +183,14 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
         if len(approx) == 8:
             # Get the bounding box to calculate center
             x, y, w, h = cv2.boundingRect(contour)
-            aspect_ratio = float(w) / h
-            if 0.8 <= aspect_ratio <= 1.2 and cv2.contourArea(contour) > 500:
+            center_x = x + w // 2
+            center_y = y + h // 2
+
+            # Check area size to filter out small contours
+            # and check for convexity
+            if cv2.contourArea(contour) > 500:
                 if cv2.isContourConvex(approx):
-                    return x + w // 2, y + h // 2, 'stop'
+                    return center_x, center_y, 'stop'
 
     return 0, 0, 'None'
 
@@ -201,10 +202,9 @@ def identify_yield(img: np.ndarray) -> tuple:
     :return: tuple with x, y, and sign name
              (x, y, 'yield')
     """
-    # Copy the image
     img_cp = img.copy()
 
-    # Convert the image to HSV
+    # Convert to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
     # Define red color range
@@ -213,7 +213,7 @@ def identify_yield(img: np.ndarray) -> tuple:
     lower_red2 = np.array([170, 100, 100])
     upper_red2 = np.array([180, 255, 255])
 
-    # Create a mask for the red color
+    # Create a mask for red
     mask_red1 = cv2.inRange(hsv, lower_red1, upper_red1)
     mask_red2 = cv2.inRange(hsv, lower_red2, upper_red2)
     mask = mask_red1 | mask_red2
@@ -221,15 +221,15 @@ def identify_yield(img: np.ndarray) -> tuple:
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
 
-    # Detect sign vertices
-    contours = sign_vertices(masked_img)
+    # Detect contours in the masked area
+    contours = sign_sides(masked_img)
 
     for contour in contours:
         # Approximate the contour to a polygon
         epsilon = 0.02 * cv2.arcLength(contour, True)
         approx = cv2.approxPolyDP(contour, epsilon, True)
 
-        # Check if the shape is a triangle (3 vertices)
+        # Check if the shape is a triangle (3 sides)
         if len(approx) == 3:
             # Get the bounding box to calculate center
             x, y, w, h = cv2.boundingRect(contour)
@@ -237,8 +237,7 @@ def identify_yield(img: np.ndarray) -> tuple:
             center_y = y + h // 2
 
             # Check area size to filter out small contours
-            area = cv2.contourArea(contour)
-            if area > 500:
+            if cv2.contourArea(contour) > 500:
                 return center_x, center_y, 'yield'
 
     return 0, 0, 'None'
@@ -251,31 +250,30 @@ def identify_construction(img: np.ndarray) -> tuple:
     :return: tuple with x, y, and sign name
              (x, y, 'construction')
     """
-    # Copy the image
     img_cp = img.copy()
 
-    # Convert the image to HSV
+    # Convert to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
     # Define orange color range
     lower_orange = np.array([5, 100, 100])
     upper_orange = np.array([20, 255, 255])
 
-    # Create a mask for the orange color
+    # Create a mask for orange
     mask = cv2.inRange(hsv, lower_orange, upper_orange)
 
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
 
-    # Detect sign vertices
-    contours = sign_vertices(masked_img)
+    # Detect contours in the masked area
+    contours = sign_sides(masked_img)
 
     for contour in contours:
         # Approximate the contour to a polygon
         epsilon = 0.02 * cv2.arcLength(contour, True)
         approx = cv2.approxPolyDP(contour, epsilon, True)
 
-        # Check if the shape is a diamond-like (4 sides) or a rectangle (4 sides)
+        # Check if the shape is a diamond-like (4 sides)
         num_sides = len(approx)
         if num_sides == 4 and cv2.isContourConvex(approx):
             # Get the bounding box to calculate center
@@ -284,8 +282,7 @@ def identify_construction(img: np.ndarray) -> tuple:
             center_y = y + h // 2
 
             # Check area size to filter out small contours
-            area = cv2.contourArea(contour)
-            if area > 500:
+            if cv2.contourArea(contour) > 500:
                 return center_x, center_y, 'construction'
 
     return 0, 0, 'None'
@@ -298,24 +295,23 @@ def identify_warning(img: np.ndarray) -> tuple:
     :return: tuple with x, y, and sign name
              (x, y, 'warning')
     """
-    # Copy the image
     img_cp = img.copy()
 
-    # Convert the image to HSV
+    # Convert to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
     # Define yellow color range
     lower_yellow = np.array([20, 100, 100])
     upper_yellow = np.array([30, 255, 255])
 
-    # Create a mask for the yellow color
+    # Create a mask for yellow
     mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
 
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
 
-    # Detect sign vertices
-    contours = sign_vertices(masked_img)
+    # Detect contours in the masked area
+    contours = sign_sides(masked_img)
 
     for contour in contours:
         # Approximate the contour to a polygon
@@ -329,10 +325,10 @@ def identify_warning(img: np.ndarray) -> tuple:
             x, y, w, h = cv2.boundingRect(contour)
             aspect_ratio = float(w) / h
 
-            # Check for diamond-like aspect ratio (roughly square-shaped)
+            # Check area size to filter out small contours
+            # and check for diamond-like aspect ratio (roughly square-shaped)
             if 0.8 <= aspect_ratio <= 1.2:
-                area = cv2.contourArea(contour)
-                if area > 500:
+                if cv2.contourArea(contour) > 500:
                     return x + w // 2, y + h // 2, 'warning'
 
     return 0, 0, 'None'
@@ -345,17 +341,16 @@ def identify_rr_crossing(img: np.ndarray) -> tuple:
     :return: tuple with x, y, and sign name
              (x, y, 'rr_crossing')
     """
-    # Copy the image
     img_cp = img.copy()
 
-    # Convert the image to HSV
+    # Convert to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
     # Define yellow color range
     lower_yellow = np.array([20, 100, 100])
     upper_yellow = np.array([30, 255, 255])
 
-    # Define the color range for detecting yellow
+    # Create a mask for yellow
     mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
 
     # Apply the mask to the image
@@ -363,7 +358,7 @@ def identify_rr_crossing(img: np.ndarray) -> tuple:
 
     # show_image('', masked_img)
 
-    # Detect circles
+    # Detect contours in the masked area
     circles = sign_circle(masked_img, 50, 100)
 
     if circles is not None:
@@ -384,19 +379,23 @@ def identify_services(img: np.ndarray) -> tuple:
     :return: tuple with x, y, and sign name
              (x, y, 'services')
     """
-    # Copy the image
     img_cp = img.copy()
 
-    # Convert the image to HSV
+    # Convert to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
-    # Define blue color range and create a mask
+    # Define blue color range
     lower_blue = np.array([100, 150, 25])
     upper_blue = np.array([140, 255, 255])
+
+    # Create a mask for blue
     mask = cv2.inRange(hsv, lower_blue, upper_blue)
 
+    # Apply the mask to the image
+    masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
+
     # Apply Gaussian blur to reduce noise
-    blurred = cv2.GaussianBlur(mask, (5, 5), 0)
+    blurred = cv2.GaussianBlur(mask, (0, 0), 1.5)
 
     # Find contours on the masked image
     contours, _ = cv2.findContours(blurred, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -409,16 +408,13 @@ def identify_services(img: np.ndarray) -> tuple:
 
         # Check if the approximated contour has 4 sides (rectangle)
         if len(approx) == 4:
-            # Use cv2.boundingRect to get the bounding box of the contour
+            # Get the bounding box to calculate center
             x, y, w, h = cv2.boundingRect(approx)
-
-            # Return the center of the bounding box as the detected sign
             center_x = x + w // 2
             center_y = y + h // 2
 
             # Check area size to filter out small contours
-            area = cv2.contourArea(contour)
-            if area > 500:
+            if cv2.contourArea(contour) > 500:
                 return center_x, center_y, 'services'
 
     # Return 'None' if no service signs are detected
@@ -434,7 +430,6 @@ def identify_signs(img: np.ndarray) -> list[list]:
              [[x, y, 'stop'],
               [x, y, 'construction']]
     """
-    # Copy the image
     img_cp = img.copy()
 
     # List to store the detected signs
@@ -465,7 +460,6 @@ def identify_signs_noisy(img: np.ndarray) -> list[list]:
              [[x, y, 'stop'],
               [x, y, 'construction']]
     """
-    # Copy the image
     img_cp = img.copy()
 
     # Blur the image
@@ -502,7 +496,6 @@ def identify_signs_real(img: np.ndarray) -> list[list]:
              [[x, y, 'stop'],
               [x, y, 'construction']]
     """
-    # Copy the image
     img_cp = img.copy()
 
     # List to store the detected signs
