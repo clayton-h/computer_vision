@@ -391,9 +391,6 @@ def identify_services(img: np.ndarray) -> tuple:
     # Create a mask for blue
     mask = cv2.inRange(hsv, lower_blue, upper_blue)
 
-    # Apply the mask to the image
-    masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
-
     # Apply Gaussian blur to reduce noise
     blurred = cv2.GaussianBlur(mask, (0, 0), 1.5)
 
