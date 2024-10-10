@@ -120,8 +120,6 @@ def identify_traffic_light(img: np.ndarray) -> tuple:
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
 
-    # show_image('', masked_img)
-
     # Detect circles
     circles = sign_circle(masked_img, 10, 30)
 
@@ -189,11 +187,8 @@ def identify_stop_sign(img: np.ndarray) -> tuple:
             # Get the bounding box to calculate center
             x, y, w, h = cv2.boundingRect(contour)
             aspect_ratio = float(w) / h
-
-            # Check for octagon-like aspect ratio (contour)
-            if 0.9 <= aspect_ratio <= 1.1:
-                area = cv2.contourArea(contour)
-                if area > 500:
+            if 0.8 <= aspect_ratio <= 1.2 and cv2.contourArea(contour) > 500:
+                if cv2.isContourConvex(approx):
                     return x + w // 2, y + h // 2, 'stop'
 
     return 0, 0, 'None'
@@ -262,7 +257,7 @@ def identify_construction(img: np.ndarray) -> tuple:
     # Convert the image to HSV
     hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
 
-    # Define orange color range (typical for construction signs)
+    # Define orange color range
     lower_orange = np.array([5, 100, 100])
     upper_orange = np.array([20, 255, 255])
 
@@ -365,6 +360,8 @@ def identify_rr_crossing(img: np.ndarray) -> tuple:
 
     # Apply the mask to the image
     masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
+
+    # show_image('', masked_img)
 
     # Detect circles
     circles = sign_circle(masked_img, 10, 100)
@@ -511,6 +508,9 @@ def identify_signs_real(img: np.ndarray) -> list[list]:
     # Copy the image
     img_cp = img.copy()
 
+    # # Blur the image
+    # img_blur = cv2.GaussianBlur(img_cp, (0, 0), 3.5)
+
     # List to store the detected signs
     found_signs = []
 
@@ -521,7 +521,7 @@ def identify_signs_real(img: np.ndarray) -> list[list]:
     ] # identify_traffic_light
 
     for func in detection_funcs:
-        x, y, sign_name = func(img_cp)
+        x, y, sign_name = func(img_blur)
         if sign_name != 'None':
             found_signs.append([x, y, sign_name])
 
