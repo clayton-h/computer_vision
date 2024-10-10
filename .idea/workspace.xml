@@ -7,9 +7,22 @@
     <list default="true" id="7e644d2d-6863-4760-93e0-dd04bde72397" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/homework/hw2/all_signs_blank_background_noise_txt.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/homework/hw2/all_signs_blank_background_noise_txt.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/homework/hw2/all_signs_blank_background_txt.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/homework/hw2/all_signs_blank_background_txt.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/homework/hw2/all_signs_noise_txt.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/homework/hw2/all_signs_noise_txt.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/homework/hw2/all_signs_txt.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/homework/hw2/all_signs_txt.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/homework/hw2/background_img_tl_green_bright_txt.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/homework/hw2/background_img_tl_green_bright_txt.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/homework/hw2/background_img_tl_red_bright2_txt.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/homework/hw2/background_img_tl_red_bright2_txt.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/homework/hw2/background_img_tl_red_bright_txt.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/homework/hw2/background_img_tl_red_bright_txt.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/homework/hw2/background_img_tl_yellow_bright_txt.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/homework/hw2/background_img_tl_yellow_bright_txt.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/homework/hw2/hw2.py" beforeDir="false" afterPath="$PROJECT_DIR$/homework/hw2/hw2.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/homework/hw2/stop_sign_background02_txt.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/homework/hw2/stop_sign_background02_txt.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/homework/hw2/stop_sign_background_txt.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/homework/hw2/stop_sign_background_txt.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/homework/hw2/stop_yield_background02_txt.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/homework/hw2/stop_yield_background02_txt.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/homework/hw2/stop_yield_background_txt.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/homework/hw2/stop_yield_background_txt.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/homework/hw2/tl_all_bright_default_txt.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/homework/hw2/tl_all_bright_default_txt.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/homework/hw2/tl_green_bright_default_txt.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/homework/hw2/tl_green_bright_default_txt.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/homework/hw2/tl_red_bright_default_txt.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/homework/hw2/tl_red_bright_default_txt.jpg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/homework/hw2/tl_yellow_bright_default_txt.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/homework/hw2/tl_yellow_bright_default_txt.jpg" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

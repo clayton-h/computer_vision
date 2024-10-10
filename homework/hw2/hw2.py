@@ -107,18 +107,23 @@ def identify_traffic_light(img: np.ndarray) -> tuple:
     # Copy the image
     img_cp = img.copy()
 
-    # # Detect stop signs first and ignore them
-    # stop_sign_x, stop_sign_y, stop_sign_name = identify_stop_sign(img_cp)
-    #
-    # if stop_sign_name == 'stop':
-    #     # Apply a mask around only the octagonal shape
-    #     mask = np.zeros_like(img_cp) * 255
-    #     stop_sign_contour = np.array([[stop_sign_x, stop_sign_y]], dtype=np.int32)
-    #     cv2.fillPoly(mask, [stop_sign_contour], (0, 0, 0))
-    #     img_cp = cv2.bitwise_and(img_cp, mask)
+    # Convert the image to HSV
+    hsv = cv2.cvtColor(img_cp, cv2.COLOR_BGR2HSV)
+
+    # Define grey color range
+    lower_grey = np.array([0, 0, 50])
+    upper_grey = np.array([180, 50, 200])
+
+    # Create a mask for the grey color
+    mask = cv2.inRange(hsv, lower_grey, upper_grey)
+
+    # Apply the mask to the image
+    masked_img = cv2.bitwise_and(img_cp, img_cp, mask=mask)
+
+    # show_image('', masked_img)
 
     # Detect circles
-    circles = sign_circle(img_cp, 10, 30)
+    circles = sign_circle(masked_img, 10, 30)
 
     if circles is not None:
         # Convert circle coordinates to integers
@@ -136,7 +141,7 @@ def identify_traffic_light(img: np.ndarray) -> tuple:
             # Check for yellow (both red and green channels are high)
             if avg_color[1] > 150 and avg_color[2] > 150:
                 return x, y, 'Yellow'
-            elif avg_color[2] > 150: #avg_color[0] < 10 or avg_color[0] > 170 and
+            elif avg_color[2] > 150:
                 return x, y, 'Red'
             elif avg_color[1] > 150:
                 return x, y, 'Green'
