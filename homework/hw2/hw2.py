@@ -364,18 +364,15 @@ def identify_rr_crossing(img: np.ndarray) -> tuple:
     # show_image('', masked_img)
 
     # Detect circles
-    circles = sign_circle(masked_img, 10, 100)
+    circles = sign_circle(masked_img, 50, 100)
 
     if circles is not None:
         # Convert circles to integer values
         circles = np.round(circles[0, :]).astype("int")
 
-        # Get the (x, y) coordinates and radius of the first detected circle
+        # Get the (x, y) coordinates and radius of the detected circle
         for (x, y, r) in circles:
-            # Check for sign characteristics, e.g., circle size range
-            if 20 <= r <= 100:
-                # Return the center coordinates of the detected circle
-                return x, y, 'rr_crossing'
+            return x, y, 'rr_crossing'
 
     return 0, 0, 'None'
 
@@ -508,9 +505,6 @@ def identify_signs_real(img: np.ndarray) -> list[list]:
     # Copy the image
     img_cp = img.copy()
 
-    # # Blur the image
-    # img_blur = cv2.GaussianBlur(img_cp, (0, 0), 3.5)
-
     # List to store the detected signs
     found_signs = []
 
@@ -521,7 +515,7 @@ def identify_signs_real(img: np.ndarray) -> list[list]:
     ] # identify_traffic_light
 
     for func in detection_funcs:
-        x, y, sign_name = func(img_blur)
+        x, y, sign_name = func(img_cp)
         if sign_name != 'None':
             found_signs.append([x, y, sign_name])
 
