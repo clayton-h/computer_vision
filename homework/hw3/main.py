@@ -1,40 +1,16 @@
 import cv2
-import cv2.aruco as aruco
 import numpy as np
-import time
+import os
 
-# Load camera calibration parameters from .npy files
-try:
-    cam_matrix = np.load("./CameraCalibration/camera_matrix.npy")
-    dist_coeffs = np.load("./CameraCalibration/dist_coeffs.npy")
-    print("Camera calibration parameters loaded successfully.")
-except FileNotFoundError:
-    print("Error: Calibration files not found. Please calibrate the camera first.")
-    exit()
+# Create the ArUco detector
+dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
+detector_params = cv2.aruco.DetectorParameters()
+detector = cv2.aruco.ArucoDetector(dictionary, detector_params)
 
-# Initialize the detector
-dictionary = aruco.getPredefinedDictionary(aruco.DICT_6X6_250)
-detector_params = aruco.DetectorParameters()
-detector = aruco.ArucoDetector(dictionary, detector_params)
+# Marker size in meters
+marker_length = 0.05
 
-# Video capture setup
-input_video = cv2.VideoCapture()
-wait_time = 0
-
-video = ""  # Replace with video path or leave empty
-cam_id = 0  # Default camera ID
-marker_length = 0.1  # Marker length in meters
-estimate_pose = True  # Set to False if pose estimation is not required
-show_rejected = True  # Set to False if rejected markers shouldn't be displayed
-
-if video:
-    input_video.open(video)
-    wait_time = 0
-else:
-    input_video.open(cam_id)
-    wait_time = 10
-
-# Coordinate system for marker pose estimation
+# Set up the coordinate system (no camera calibration, so no pose estimation)
 obj_points = np.array([
     [-marker_length / 2, marker_length / 2, 0],
     [marker_length / 2, marker_length / 2, 0],
@@ -42,57 +18,51 @@ obj_points = np.array([
     [-marker_length / 2, -marker_length / 2, 0]
 ], dtype=np.float32)
 
-total_time = 0
-total_iterations = 0
+# Options
+estimate_pose = False  # Disable pose estimation
+show_rejected = False  # Toggle rejected marker visualization
 
-while input_video.grab():
-    ret, image = input_video.retrieve()
-    if not ret:
-        break
-    image_copy = image.copy()
+# Process a single image or multiple images
+def process_static_images(image_path):
+    for image_path in image_path:
+        print(f"Processing {image_path}...")
+        image = cv2.imread(image_path)
+        if image is None:
+            print(f"Error: Unable to load image {image_path}")
+            continue
 
-    start_time = time.time()
-
-    # Detect markers
-    corners, ids, rejected = detector.detectMarkers(image)
-
-    if ids is not None:
-        n_markers = len(corners)
-        rvecs = []
-        tvecs = []
-
-        if estimate_pose:
-            for i in range(n_markers):
-                rvec, tvec, _ = cv2.solvePnP(obj_points, corners[i], cam_matrix, dist_coeffs)
-                rvecs.append(rvec)
-                tvecs.append(tvec)
+        # Detect markers
+        corners, ids, rejected = detector.detectMarkers(image)
 
         # Draw detected markers
-        aruco.drawDetectedMarkers(image_copy, corners, ids)
+        image_copy = image.copy()
+        if ids is not None:
+            cv2.aruco.drawDetectedMarkers(image_copy, corners, ids)
 
-        # Draw pose estimation results
-        if estimate_pose:
-            for rvec, tvec in zip(rvecs, tvecs):
-                cv2.drawFrameAxes(image_copy, cam_matrix, dist_coeffs, rvec, tvec, marker_length * 1.5, 2)
+            # If pose estimation was enabled, you could draw axes here, but now we skip that
+            # Since estimate_pose is False, we do not calculate or draw axes
 
-    # Optionally show rejected candidates
-    if show_rejected and rejected:
-        aruco.drawDetectedMarkers(image_copy, rejected, borderColor=(100, 0, 255))
+        # Draw rejected markers if enabled
+        if show_rejected and len(rejected) > 0:
+            cv2.aruco.drawDetectedMarkers(image_copy, rejected, borderColor=(100, 0, 255))
 
-    # Calculate and display timing
-    current_time = time.time() - start_time
-    total_time += current_time
-    total_iterations += 1
+        # Display the results
+        cv2.imshow("Processed Image", image_copy)
+        key = cv2.waitKey(0)  # Wait indefinitely for a key press
+        if key == 27:  # Exit if ESC is pressed
+            break
 
-    if total_iterations % 30 == 0:
-        print(f"Detection Time = {current_time * 1000:.2f} ms "
-              f"(Mean = {total_time * 1000 / total_iterations:.2f} ms)")
+    cv2.destroyAllWindows()
 
-    # Display the results
-    cv2.imshow("out", image_copy)
-    key = cv2.waitKey(wait_time) & 0xFF
-    if key == 27:  # Esc key
-        break
 
-input_video.release()
-cv2.destroyAllWindows()
+# Example usage
+image_folder = "img_reference"  # Replace with folder path or empty string
+
+# Load images from folder if folder is provided, otherwise process a single image
+if image_folder:
+    image_paths = [os.path.join(image_folder, f) for f in os.listdir(image_folder) if f.endswith(('.png', '.jpg', '.jpeg'))]
+else:
+    single_image_path = "0.jpg"  # Replace with single image path
+    image_paths = [single_image_path]
+
+process_static_images(image_paths)
