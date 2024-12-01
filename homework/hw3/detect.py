@@ -39,9 +39,6 @@ def process_static_images(image_path):
         if ids is not None:
             cv2.aruco.drawDetectedMarkers(image_copy, corners, ids)
 
-            # If pose estimation was enabled, you could draw axes here, but now we skip that
-            # Since estimate_pose is False, we do not calculate or draw axes
-
         # Draw rejected markers if enabled
         if show_rejected and len(rejected) > 0:
             cv2.aruco.drawDetectedMarkers(image_copy, rejected, borderColor=(100, 0, 255))
@@ -54,9 +51,7 @@ def process_static_images(image_path):
 
     cv2.destroyAllWindows()
 
-
-# Example usage
-image_folder = "img_reference"  # Replace with folder path or empty string
+image_folder = "img_reference"
 
 # Load images from folder if folder is provided, otherwise process a single image
 if image_folder:
