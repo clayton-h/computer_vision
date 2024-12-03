@@ -7,7 +7,7 @@ dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_50)
 detector_params = cv2.aruco.DetectorParameters()
 detector = cv2.aruco.ArucoDetector(dictionary, detector_params)
 
-# Marker IDs for layout (adjust these IDs based on your marker configuration)
+# Marker IDs for layout
 marker_layout = {
     "top_left": 0,
     "top_right": 1,
